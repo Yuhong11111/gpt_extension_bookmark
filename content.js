@@ -21,6 +21,7 @@ function getConversationId() {
 }
 
 // -------------------- storage helpers --------------------
+// all = { <conversationId>: [ { msgId, preview, ts }, ... ], ... }
 function loadAll() {
   return new Promise((resolve) => {
     try {
@@ -35,7 +36,8 @@ function loadAll() {
     }
   });
 }
-
+// all = { <conversationId>: [ { msgId, preview, ts }, ... ], ... }
+// replaces the entire bookmark database with `all`
 function saveAll(all) {
   return new Promise((resolve) => {
     try {
@@ -155,6 +157,7 @@ function ensurePanel() {
   panel.querySelector("#cgptClear").addEventListener("click", async () => {
     const all = await loadAll();
     all[getConversationId()] = [];
+    // Render the saved list for this conversation in the panel
     await saveAll(all);
     await renderPanel();
     await updateButtonStates();
@@ -208,11 +211,16 @@ async function renderPanel() {
 
 // -------------------- bookmark logic --------------------
 async function toggleBookmark(msgId, preview) {
+    // load all bookmarks
   const all = await loadAll();
+//   get current conversation's bookmark list
   const convId = getConversationId();
+//   get or init the list for this conversation
   const list = all[convId] || [];
 
+//   check if msgId is already bookmarked
   const idx = list.findIndex((x) => x.msgId === msgId);
+//   if bookmarked, remove it; else add it to the front
   if (idx >= 0) list.splice(idx, 1);
   else list.unshift({ msgId, preview, ts: Date.now() });
 
@@ -235,6 +243,7 @@ async function updateButtonStates() {
 
 // -------------------- decorate messages with "Mark" button --------------------
 function decorate() {
+// Get all message nodes
   const nodes = getMessageNodes();
 
   nodes.forEach((el, i) => {
@@ -242,6 +251,7 @@ function decorate() {
 
     // Make it scroll-targetable
     // (MVP note: if ChatGPT re-renders, IDs could shift; we can make this more stable later.)
+    // Ensure each message has a unique ID
     ensureMessageId(el, i);
 
     if (!hasWrap) el.classList.add("cgpt-marker-wrap");
@@ -254,6 +264,12 @@ function decorate() {
       article?.querySelector("[data-testid=\"copy-turn-action-button\"]")?.closest("div") ||
       null;
     const targetHost = actionBar || el;
+
+    if (actionBar) {
+    //   Remove any old button that was attached to the message box
+      const oldBtn = el.querySelector(`.cgpt-marker-btn[data-msg-id="${el.id}"]`);
+      if (oldBtn) oldBtn.remove();
+    }
 
     if (!targetHost.querySelector(`.cgpt-marker-btn[data-msg-id="${el.id}"]`)) {
       const btn = document.createElement("button");
@@ -277,6 +293,7 @@ function decorate() {
 function start() {
   const ensureUI = () => {
     if (!document.body) return;
+    // create launcher and panel if not exist
     ensureLauncher();
     ensurePanel();
   };

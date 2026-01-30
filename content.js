@@ -61,6 +61,40 @@ function getMessageNodes() {
   return containers.filter((el) => el.querySelector?.("[data-message-author-role]"));
 }
 
+function ensureMessageId(el, index) {
+  if (el.id) return el.id;
+  const stable =
+    el.getAttribute("data-message-id") ||
+    el.getAttribute("data-testid") ||
+    el.querySelector?.("[data-message-id]")?.getAttribute("data-message-id") ||
+    null;
+  if (stable) {
+    const safe = stable.replace(/[^a-zA-Z0-9_-]/g, "_");
+    el.id = `cgpt-msg-${safe}`;
+    return el.id;
+  }
+  el.id = `cgpt-msg-${index}`;
+  return el.id;
+}
+
+function findMessageByIdOrIndex(msgId) {
+  if (!msgId) return null;
+  let target = document.getElementById(msgId);
+  if (target) return target;
+
+  const raw = msgId.replace(/^cgpt-msg-/, "");
+  target = document.querySelector(`[data-message-id="${raw}"]`);
+  if (target) return target;
+
+  const m = msgId.match(/^cgpt-msg-(\d+)$/);
+  if (m) {
+    const idx = Number(m[1]);
+    const nodes = getMessageNodes();
+    return Number.isFinite(idx) ? nodes[idx] : null;
+  }
+  return null;
+}
+
 function previewText(el) {
   const t = (el.innerText || "").trim().replace(/\s+/g, " ");
   if (!t) return "(no text)";
@@ -75,11 +109,16 @@ function ensureLauncher() {
   btn = document.createElement("button");
   btn.className = "cgpt-marker-launcher";
   btn.type = "button";
-  btn.textContent = "🔖"; // launcher icon
+  btn.innerHTML = `
+    <svg class="cgpt-marker-launcher-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M6 4.5h8.5a3 3 0 0 1 3 3v11.25a.75.75 0 0 1-1.14.64L12 17.5l-4.36 2.89A.75.75 0 0 1 6.5 19V4.5Z" fill="currentColor"/>
+    </svg>
+  `;
   btn.title = "Bookmarks";
 
   btn.addEventListener("click", () => {
     const panel = ensurePanel();
+    renderPanel();
     const isHidden =
       panel.style.display === "none" || getComputedStyle(panel).display === "none";
     panel.style.display = isHidden ? "block" : "none";
@@ -146,10 +185,16 @@ async function renderPanel() {
     `;
 
     row.addEventListener("click", () => {
-      const target = document.getElementById(item.msgId);
+      const target = findMessageByIdOrIndex(item.msgId);
       if (!target) return;
 
-      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      // First jump to the start of the message, then align its first line to mid‑screen.
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => {
+        const rect = target.getBoundingClientRect();
+        const delta = rect.top - window.innerHeight / 2;
+        if (Math.abs(delta) > 4) window.scrollBy({ top: delta, behavior: "smooth" });
+      }, 200);
 
       // flash highlight so you can see where you landed
       target.style.transition = "outline 0.2s";
@@ -193,44 +238,66 @@ function decorate() {
   const nodes = getMessageNodes();
 
   nodes.forEach((el, i) => {
-    if (el.classList.contains("cgpt-marker-wrap")) return;
+    const hasWrap = el.classList.contains("cgpt-marker-wrap");
 
     // Make it scroll-targetable
     // (MVP note: if ChatGPT re-renders, IDs could shift; we can make this more stable later.)
-    if (!el.id) el.id = `cgpt-msg-${i}`;
+    ensureMessageId(el, i);
 
-    el.classList.add("cgpt-marker-wrap");
+    if (!hasWrap) el.classList.add("cgpt-marker-wrap");
 
-    const btn = document.createElement("button");
-    btn.className = "cgpt-marker-btn";
-    btn.type = "button";
-    btn.textContent = "Mark"; // per your requirement
-    btn.setAttribute("data-msg-id", el.id);
+    if (!el.querySelector(".cgpt-marker-btn")) {
+      const btn = document.createElement("button");
+      btn.className = "cgpt-marker-btn";
+      btn.type = "button";
+      btn.textContent = "Mark"; // per your requirement
+      btn.setAttribute("data-msg-id", el.id);
 
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleBookmark(el.id, previewText(el));
-    });
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleBookmark(el.id, previewText(el));
+      });
 
-    el.appendChild(btn);
+      el.appendChild(btn);
+    }
   });
 }
 
 // -------------------- dynamic page updates --------------------
 function start() {
-  ensureLauncher();
-  ensurePanel();
+  const ensureUI = () => {
+    if (!document.body) return;
+    ensureLauncher();
+    ensurePanel();
+  };
+
+  ensureUI();
 
   decorate();
   renderPanel();
   updateButtonStates();
 
   const obs = new MutationObserver(() => {
+    ensureUI();
     decorate();
     updateButtonStates();
   });
 
-  obs.observe(document.body, { childList: true, subtree: true });
+  // Observe the root so we still react if <body> is replaced by the SPA.
+  obs.observe(document.documentElement, { childList: true, subtree: true });
+
+  // Safety net for SPA navigations that replace large DOM chunks.
+  setInterval(ensureUI, 2000);
+
+  // Close panel when clicking outside
+  document.addEventListener("click", (e) => {
+    const panel = document.querySelector(".cgpt-marker-panel");
+    const launcher = document.querySelector(".cgpt-marker-launcher");
+    if (!panel || !launcher) return;
+    if (panel.style.display === "none" || getComputedStyle(panel).display === "none") return;
+    if (panel.contains(e.target) || launcher.contains(e.target)) return;
+    panel.style.display = "none";
+  });
 }
 
 start();

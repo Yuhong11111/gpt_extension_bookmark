@@ -1,0 +1,26 @@
+{
+    "manifest_version": 3,
+    "name": "ChatGPT bookmark",
+    "version": "0.1.0",
+    "description": "Bookmark messages in ChatGPT conversations and jump back quickly.",
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "https://chatgpt.com/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://chatgpt.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "styles.css"
+            ],
+            "run_at": "document_idle"
+        }
+    ]
+}

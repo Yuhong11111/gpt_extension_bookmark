@@ -190,11 +190,11 @@ async function renderPanel() {
 
       // First jump to the start of the message, then align its first line to mid‑screen.
       target.scrollIntoView({ behavior: "smooth", block: "start" });
-      setTimeout(() => {
-        const rect = target.getBoundingClientRect();
-        const delta = rect.top - window.innerHeight / 2;
-        if (Math.abs(delta) > 4) window.scrollBy({ top: delta, behavior: "smooth" });
-      }, 200);
+    //   setTimeout(() => {
+    //     const rect = target.getBoundingClientRect();
+    //     const delta = rect.top - window.innerHeight / 2;
+    //     if (Math.abs(delta) > 4) window.scrollBy({ top: delta, behavior: "smooth" });
+    //   }, 200);
 
       // flash highlight so you can see where you landed
       target.style.transition = "outline 0.2s";
@@ -246,7 +246,16 @@ function decorate() {
 
     if (!hasWrap) el.classList.add("cgpt-marker-wrap");
 
-    if (!el.querySelector(".cgpt-marker-btn")) {
+    const article = el.closest("article");
+    const actionBar =
+      article?.querySelector("div.z-0.flex.justify-end") ||
+      article?.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-start") ||
+      article?.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-end") ||
+      article?.querySelector("[data-testid=\"copy-turn-action-button\"]")?.closest("div") ||
+      null;
+    const targetHost = actionBar || el;
+
+    if (!targetHost.querySelector(`.cgpt-marker-btn[data-msg-id="${el.id}"]`)) {
       const btn = document.createElement("button");
       btn.className = "cgpt-marker-btn";
       btn.type = "button";
@@ -258,7 +267,8 @@ function decorate() {
         toggleBookmark(el.id, previewText(el));
       });
 
-      el.appendChild(btn);
+      if (actionBar) btn.classList.add("cgpt-marker-btn-inline");
+      targetHost.appendChild(btn);
     }
   });
 }

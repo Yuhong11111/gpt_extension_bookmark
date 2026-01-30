@@ -11,7 +11,7 @@
     right: 8px;
 
     border: 1px solid rgba(0, 0, 0, 0.10);
-    background: rgba(255, 255, 255, 0.85);
+    background: rgb(255, 255, 255);
 
     border-radius: 10px;
     padding: 6px 10px;
@@ -21,10 +21,24 @@
     font-weight: 600;
     letter-spacing: 0.2px;
 
-    opacity: 0.25;
+    opacity: 0;
     transition: opacity 0.15s, transform 0.15s, background 0.15s;
     user-select: none;
     z-index: 2;
+}
+
+.cgpt-marker-btn-inline {
+    position: static;
+    opacity: 1;
+    border: none;
+    background: transparent;
+    padding: 0 6px;
+    font-size: 12px;
+}
+
+.cgpt-marker-btn-inline:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
 }
 
 /* show on hover */
@@ -36,8 +50,8 @@
 /* bookmarked state */
 .cgpt-marker-btn.is-bookmarked {
     opacity: 1;
-    background: rgba(255, 220, 120, 0.35);
-    border-color: rgba(255, 180, 0, 0.35);
+    background: rgb(255, 219, 120);
+    border-color: rgba(255, 179, 0, 0.335);
 }
 
 /* --- Bottom-right launcher icon (always visible, medium, circle) --- */

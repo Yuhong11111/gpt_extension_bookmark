@@ -3,6 +3,10 @@
 
 const STORAGE_KEY = "cgpt_markers_v1";
 
+function convStorageKey(convId) {
+  return `${STORAGE_KEY}:${convId}`;
+}
+
 // Chrome invalidates content script contexts on extension reloads.
 function isExtensionContextValid() {
   try {
@@ -21,31 +25,31 @@ function getConversationId() {
 }
 
 // -------------------- storage helpers --------------------
-// all = { <conversationId>: [ { msgId, preview, ts }, ... ], ... }
-function loadAll() {
+// per-conversation storage: cgpt_markers_v1:<conversationId>
+function loadConversation(convId) {
   return new Promise((resolve) => {
     try {
       if (!isExtensionContextValid() || !chrome?.storage?.local) {
-        resolve({});
+        resolve([]);
         return;
       }
-      // Get the values stored under STORAGE_KEY
-      chrome.storage.local.get([STORAGE_KEY], (res) => resolve(res?.[STORAGE_KEY] || {}));
+      const key = convStorageKey(convId);
+      chrome.storage.local.get([key], (res) => resolve(res?.[key] || []));
     } catch {
-      resolve({});
+      resolve([]);
     }
   });
 }
-// all = { <conversationId>: [ { msgId, preview, ts }, ... ], ... }
-// replaces the entire bookmark database with `all`
-function saveAll(all) {
+
+function saveConversation(convId, list) {
   return new Promise((resolve) => {
     try {
       if (!isExtensionContextValid() || !chrome?.storage?.local) {
         resolve();
         return;
       }
-      chrome.storage.local.set({ [STORAGE_KEY]: all }, resolve);
+      const key = convStorageKey(convId);
+      chrome.storage.local.set({ [key]: list }, resolve);
     } catch {
       resolve();
     }
@@ -155,10 +159,7 @@ function ensurePanel() {
   });
 
   panel.querySelector("#cgptClear").addEventListener("click", async () => {
-    const all = await loadAll();
-    all[getConversationId()] = [];
-    // Render the saved list for this conversation in the panel
-    await saveAll(all);
+    await saveConversation(getConversationId(), []);
     await renderPanel();
     await updateButtonStates();
   });
@@ -170,8 +171,7 @@ async function renderPanel() {
   const panel = ensurePanel();
   const listEl = panel.querySelector(".cgpt-marker-list");
 
-  const all = await loadAll();
-  const list = all[getConversationId()] || [];
+  const list = await loadConversation(getConversationId());
 
   if (list.length === 0) {
     listEl.innerHTML = `<div class="cgpt-marker-muted">No bookmarks yet. Hover a message and click Mark.</div>`;
@@ -188,7 +188,7 @@ async function renderPanel() {
     `;
 
     row.addEventListener("click", () => {
-      const target = findMessageByIdOrIndex(item.msgId);
+    const target = findMessageByIdOrIndex(item.msgId);
       if (!target) return;
 
       // First jump to the start of the message, then align its first line to mid‑screen.
@@ -211,12 +211,8 @@ async function renderPanel() {
 
 // -------------------- bookmark logic --------------------
 async function toggleBookmark(msgId, preview) {
-    // load all bookmarks
-  const all = await loadAll();
-//   get current conversation's bookmark list
   const convId = getConversationId();
-//   get or init the list for this conversation
-  const list = all[convId] || [];
+  const list = await loadConversation(convId);
 
 //   check if msgId is already bookmarked
   const idx = list.findIndex((x) => x.msgId === msgId);
@@ -224,16 +220,15 @@ async function toggleBookmark(msgId, preview) {
   if (idx >= 0) list.splice(idx, 1);
   else list.unshift({ msgId, preview, ts: Date.now() });
 
-  all[convId] = list;
-  await saveAll(all);
+  await saveConversation(convId, list);
 
   await renderPanel();
   await updateButtonStates();
 }
 
 async function updateButtonStates() {
-  const all = await loadAll();
-  const set = new Set((all[getConversationId()] || []).map((x) => x.msgId));
+  const list = await loadConversation(getConversationId());
+  const set = new Set(list.map((x) => x.msgId));
 
   document.querySelectorAll(".cgpt-marker-btn").forEach((btn) => {
     const msgId = btn.getAttribute("data-msg-id");

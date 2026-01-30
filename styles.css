@@ -190,3 +190,72 @@
     cursor: pointer;
     font-size: 12px;
 }
+
+@media (prefers-color-scheme: dark) {
+    .cgpt-marker-btn {
+        border-color: rgba(255, 255, 255, 0.15);
+        background: rgba(20, 24, 32, 0.9);
+        color: #e2e8f0;
+    }
+
+    .cgpt-marker-btn.is-bookmarked {
+        background: rgba(234, 179, 8, 0.25);
+        border-color: rgba(234, 179, 8, 0.45);
+        color: #fef3c7;
+    }
+
+    .cgpt-marker-btn-inline {
+        color: #e2e8f0;
+    }
+
+    .cgpt-marker-btn-inline:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .cgpt-marker-launcher {
+        border-color: rgba(255, 255, 255, 0.14);
+        background:
+            radial-gradient(120% 120% at 30% 20%, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 45%, rgba(2, 6, 23, 0.95) 100%),
+            linear-gradient(180deg, rgba(30, 41, 59, 0.7), rgba(2, 6, 23, 0.85));
+        box-shadow:
+            0 14px 30px rgba(0, 0, 0, 0.45),
+            0 2px 6px rgba(0, 0, 0, 0.35),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        color: #e2e8f0;
+    }
+
+    .cgpt-marker-launcher:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+        background:
+            radial-gradient(120% 120% at 30% 20%, rgba(51, 65, 85, 0.95) 0%, rgba(15, 23, 42, 0.95) 45%, rgba(2, 6, 23, 1) 100%),
+            linear-gradient(180deg, rgba(51, 65, 85, 0.8), rgba(2, 6, 23, 0.95));
+    }
+
+    .cgpt-marker-panel {
+        background: rgba(15, 23, 42, 0.95);
+        border-color: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        color: #e2e8f0;
+    }
+
+    .cgpt-marker-panel header {
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .cgpt-marker-item {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .cgpt-marker-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .cgpt-marker-muted {
+        opacity: 0.7;
+    }
+
+    .cgpt-marker-header-btn {
+        background: rgba(255, 255, 255, 0.08);
+        color: #e2e8f0;
+    }
+}

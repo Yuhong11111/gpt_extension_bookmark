@@ -57,6 +57,7 @@ function saveConversation(convId, list) {
 }
 
 // -------------------- DOM helpers --------------------
+// It return an array of message container elements
 function getMessageNodes() {
   // Best-case selector: message containers carry this attribute
   const direct = Array.from(document.querySelectorAll("[data-message-author-role]"));
@@ -253,7 +254,9 @@ function decorate() {
 
     const article = el.closest("article");
     const actionBar =
+    // user message action bar
       article?.querySelector("div.z-0.flex.justify-end") ||
+    // assistant message action bar
       article?.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-start") ||
       article?.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-end") ||
       article?.querySelector("[data-testid=\"copy-turn-action-button\"]")?.closest("div") ||

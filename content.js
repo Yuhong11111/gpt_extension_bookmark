@@ -91,7 +91,7 @@ function findMessageByIdOrIndex(msgId) {
 
   const raw = msgId.replace(/^cgpt-msg-/, "");
   target = document.querySelector(`[data-message-id="${raw}"]`);
-  if (target) return target;
+  if (target) return target.closest?.("[data-message-author-role]") || target;
 
   const m = msgId.match(/^cgpt-msg-(\d+)$/);
   if (m) {
@@ -102,10 +102,27 @@ function findMessageByIdOrIndex(msgId) {
   return null;
 }
 
+function tryResolveTarget(msgId) {
+  // Ensure ids are assigned before resolving
+  decorate();
+  return findMessageByIdOrIndex(msgId);
+}
+
 function previewText(el) {
   const t = (el.innerText || "").trim().replace(/\s+/g, " ");
   if (!t) return "(no text)";
   return t.slice(0, 90) + (t.length > 90 ? "…" : "");
+}
+
+function getScrollParent(el) {
+  let cur = el;
+  while (cur && cur !== document.body) {
+    const style = window.getComputedStyle(cur);
+    const overflowY = style.overflowY;
+    if (overflowY === "auto" || overflowY === "scroll") return cur;
+    cur = cur.parentElement;
+  }
+  return document.scrollingElement || document.documentElement;
 }
 
 // -------------------- launcher + panel --------------------
@@ -188,22 +205,43 @@ async function renderPanel() {
       <div class="cgpt-marker-muted">${new Date(item.ts).toLocaleString()}</div>
     `;
 
-    row.addEventListener("click", () => {
-    const target = findMessageByIdOrIndex(item.msgId);
-      if (!target) return;
+    row.addEventListener("click", async () => {
+      const msgId = item.msgId;
+      let attempts = 0;
+      const maxAttempts = 5;
 
-      // First jump to the start of the message, then align its first line to mid‑screen.
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    //   setTimeout(() => {
-    //     const rect = target.getBoundingClientRect();
-    //     const delta = rect.top - window.innerHeight / 2;
-    //     if (Math.abs(delta) > 4) window.scrollBy({ top: delta, behavior: "smooth" });
-    //   }, 200);
+      const scrollStep = async () => {
+        const target = tryResolveTarget(msgId);
+        if (!target) return false;
 
-      // flash highlight so you can see where you landed
-      target.style.transition = "outline 0.2s";
-      target.style.outline = "3px solid rgba(255,165,0,0.6)";
-      setTimeout(() => (target.style.outline = ""), 900);
+        const resolved = target.closest?.("[data-message-author-role]") || target;
+        
+        // 1. Force the scroll
+        resolved.scrollIntoView({ behavior: "smooth", block: "start" });
+
+        // 2. Wait for the browser to finish shifting the layout
+        await new Promise(r => setTimeout(r, 450));
+
+        // 3. Verify: Check if we actually landed at the top
+        const rect = resolved.getBoundingClientRect();
+        // If rect.top is near 0 (or your header offset), we are successful
+        const isAtTop = Math.abs(rect.top) < 10; 
+
+        if (!isAtTop && attempts < maxAttempts) {
+          attempts++;
+          return scrollStep(); // Recursive nudge
+        }
+        return resolved;
+      };
+
+      const finalTarget = await scrollStep();
+
+      if (finalTarget) {
+        // Flash highlight
+        finalTarget.style.transition = "outline 0.2s";
+        finalTarget.style.outline = "3px solid rgba(255,165,0,0.6)";
+        setTimeout(() => (finalTarget.style.outline = ""), 900);
+      }
     });
 
     listEl.appendChild(row);

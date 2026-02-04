@@ -126,6 +126,70 @@ function getScrollParent(el) {
 }
 
 // -------------------- launcher + panel --------------------
+const LAUNCHER_POS_KEY = "cgpt_marker_launcher_pos_v1";
+const LAUNCHER_MARGIN = 8;
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function loadLauncherPos() {
+  try {
+    const raw = localStorage.getItem(LAUNCHER_POS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed?.left !== "number" || typeof parsed?.top !== "number") return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveLauncherPos(pos) {
+  try {
+    localStorage.setItem(LAUNCHER_POS_KEY, JSON.stringify(pos));
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function applyLauncherPos(btn, pos) {
+  if (!pos) return;
+  const maxLeft = window.innerWidth - btn.offsetWidth - LAUNCHER_MARGIN;
+  const maxTop = window.innerHeight - btn.offsetHeight - LAUNCHER_MARGIN;
+  const left = clamp(pos.left, LAUNCHER_MARGIN, Math.max(LAUNCHER_MARGIN, maxLeft));
+  const top = clamp(pos.top, LAUNCHER_MARGIN, Math.max(LAUNCHER_MARGIN, maxTop));
+  btn.style.left = `${left}px`;
+  btn.style.top = `${top}px`;
+  btn.style.right = "auto";
+  btn.style.bottom = "auto";
+}
+
+function positionPanelNearLauncher(panel, launcher) {
+  if (!panel || !launcher) return;
+  const rect = launcher.getBoundingClientRect();
+
+  // Ensure the panel has a measurable size
+  const panelWidth = panel.offsetWidth || 320;
+  const panelHeight = panel.offsetHeight || 360;
+  const maxLeft = window.innerWidth - panelWidth - LAUNCHER_MARGIN;
+  const maxTop = window.innerHeight - panelHeight - LAUNCHER_MARGIN;
+
+  let left = rect.right - panelWidth;
+  left = clamp(left, LAUNCHER_MARGIN, Math.max(LAUNCHER_MARGIN, maxLeft));
+
+  const preferredTop = rect.top - panelHeight - 12;
+  let top = preferredTop;
+  if (top < LAUNCHER_MARGIN) {
+    top = rect.bottom + 12;
+  }
+  top = clamp(top, LAUNCHER_MARGIN, Math.max(LAUNCHER_MARGIN, maxTop));
+
+  panel.style.left = `${left}px`;
+  panel.style.top = `${top}px`;
+  panel.style.right = "auto";
+  panel.style.bottom = "auto";
+}
 function ensureLauncher() {
   let btn = document.querySelector(".cgpt-marker-launcher");
   if (btn) return btn;
@@ -140,15 +204,88 @@ function ensureLauncher() {
   `;
   btn.title = "Bookmarks";
 
+  let wasDragged = false;
+
   btn.addEventListener("click", () => {
+    if (wasDragged) {
+      wasDragged = false;
+      return;
+    }
     const panel = ensurePanel();
     renderPanel();
     const isHidden =
       panel.style.display === "none" || getComputedStyle(panel).display === "none";
     panel.style.display = isHidden ? "block" : "none";
+    if (panel.style.display === "block") {
+      positionPanelNearLauncher(panel, btn);
+    }
   });
 
   document.body.appendChild(btn);
+  applyLauncherPos(btn, loadLauncherPos());
+
+  let dragStart = null;
+  btn.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    const rect = btn.getBoundingClientRect();
+    dragStart = {
+      x: e.clientX,
+      y: e.clientY,
+      left: rect.left,
+      top: rect.top,
+      moved: false,
+    };
+    btn.setPointerCapture(e.pointerId);
+  });
+
+  btn.addEventListener("pointermove", (e) => {
+    if (!dragStart) return;
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    if (!dragStart.moved && Math.abs(dx) + Math.abs(dy) > 4) {
+      dragStart.moved = true;
+      btn.classList.add("is-dragging");
+    }
+    if (!dragStart.moved) return;
+
+    const maxLeft = window.innerWidth - btn.offsetWidth - LAUNCHER_MARGIN;
+    const maxTop = window.innerHeight - btn.offsetHeight - LAUNCHER_MARGIN;
+    const nextLeft = clamp(dragStart.left + dx, LAUNCHER_MARGIN, Math.max(LAUNCHER_MARGIN, maxLeft));
+    const nextTop = clamp(dragStart.top + dy, LAUNCHER_MARGIN, Math.max(LAUNCHER_MARGIN, maxTop));
+    btn.style.left = `${nextLeft}px`;
+    btn.style.top = `${nextTop}px`;
+    btn.style.right = "auto";
+    btn.style.bottom = "auto";
+
+    const panel = document.querySelector(".cgpt-marker-panel");
+    if (panel && panel.style.display === "block") {
+      positionPanelNearLauncher(panel, btn);
+    }
+  });
+
+  const endDrag = (e) => {
+    if (!dragStart) return;
+    if (dragStart.moved) {
+      wasDragged = true;
+      saveLauncherPos({
+        left: parseFloat(btn.style.left || "0"),
+        top: parseFloat(btn.style.top || "0"),
+      });
+    }
+    btn.classList.remove("is-dragging");
+    dragStart = null;
+    btn.releasePointerCapture?.(e.pointerId);
+  };
+
+  btn.addEventListener("pointerup", endDrag);
+  btn.addEventListener("pointercancel", endDrag);
+  window.addEventListener("resize", () => {
+    applyLauncherPos(btn, loadLauncherPos());
+    const panel = document.querySelector(".cgpt-marker-panel");
+    if (panel && panel.style.display === "block") {
+      positionPanelNearLauncher(panel, btn);
+    }
+  });
   return btn;
 }
 

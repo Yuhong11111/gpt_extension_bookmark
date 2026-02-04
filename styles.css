@@ -178,6 +178,35 @@
     line-height: 1.35;
 }
 
+.cgpt-marker-item-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.cgpt-marker-item-row > div {
+    flex: 1 1 auto;
+}
+
+.cgpt-marker-item-remove {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 0.8);
+    color: rgba(15, 23, 42, 0.7);
+    font-size: 14px;
+    line-height: 16px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.cgpt-marker-item-remove:hover {
+    color: rgba(15, 23, 42, 0.9);
+    background: rgba(255, 255, 255, 0.95);
+}
+
 .cgpt-marker-item:hover {
     background: rgba(0, 0, 0, 0.07);
 }

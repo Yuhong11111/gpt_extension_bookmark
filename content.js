@@ -325,11 +325,15 @@ function ensurePanel() {
 async function renderPanel() {
   const panel = ensurePanel();
   const listEl = panel.querySelector(".cgpt-marker-list");
+  const launcher = document.querySelector(".cgpt-marker-launcher");
 
   const list = await loadConversation(getConversationId());
 
   if (list.length === 0) {
     listEl.innerHTML = `<div class="cgpt-marker-muted">No bookmarks yet. Hover a message and click Mark.</div>`;
+    if (panel.style.display === "block" && launcher) {
+      positionPanelNearLauncher(panel, launcher);
+    }
     return;
   }
 
@@ -338,9 +342,23 @@ async function renderPanel() {
     const row = document.createElement("div");
     row.className = "cgpt-marker-item";
     row.innerHTML = `
-      <div>${item.preview}</div>
+      <div class="cgpt-marker-item-row">
+        <div>${item.preview}</div>
+        <button class="cgpt-marker-item-remove" type="button" aria-label="Remove bookmark" title="Remove bookmark">
+          ×
+        </button>
+      </div>
       <div class="cgpt-marker-muted">${new Date(item.ts).toLocaleString()}</div>
     `;
+
+    const removeBtn = row.querySelector(".cgpt-marker-item-remove");
+    removeBtn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const next = list.filter((x) => x.msgId !== item.msgId);
+      await saveConversation(getConversationId(), next);
+      await renderPanel();
+      await updateButtonStates();
+    });
 
     row.addEventListener("click", async () => {
       const msgId = item.msgId;
@@ -382,6 +400,10 @@ async function renderPanel() {
     });
 
     listEl.appendChild(row);
+  }
+
+  if (panel.style.display === "block" && launcher) {
+    positionPanelNearLauncher(panel, launcher);
   }
 }
 
@@ -436,13 +458,18 @@ function decorate() {
       article?.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-end") ||
       article?.querySelector("[data-testid=\"copy-turn-action-button\"]")?.closest("div") ||
       null;
-    const targetHost = actionBar || el;
-
-    if (actionBar) {
-    //   Remove any old button that was attached to the message box
+    if (!actionBar) {
+      // If action bar isn't present (e.g. streaming response), don't show hover button.
       const oldBtn = el.querySelector(`.cgpt-marker-btn[data-msg-id="${el.id}"]`);
       if (oldBtn) oldBtn.remove();
+      return;
     }
+
+    const targetHost = actionBar;
+
+    // Remove any old button that was attached to the message box
+    const oldBtn = el.querySelector(`.cgpt-marker-btn[data-msg-id="${el.id}"]`);
+    if (oldBtn) oldBtn.remove();
 
     if (!targetHost.querySelector(`.cgpt-marker-btn[data-msg-id="${el.id}"]`)) {
       const btn = document.createElement("button");
@@ -456,7 +483,7 @@ function decorate() {
         toggleBookmark(el.id, previewText(el));
       });
 
-      if (actionBar) btn.classList.add("cgpt-marker-btn-inline");
+      btn.classList.add("cgpt-marker-btn-inline");
       targetHost.appendChild(btn);
     }
   });

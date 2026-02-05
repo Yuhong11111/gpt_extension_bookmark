@@ -52,4 +52,5 @@ Bookmarks are stored using keys like:
 ---
 
 ## Screenshots
-
+![Launcher and panel](<Screenshot 2026-02-05 at 12.44.35 PM.png>)
+![Inline mark button](<Screenshot 2026-02-05 at 12.45.22 PM.png>)

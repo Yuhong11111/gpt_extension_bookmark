@@ -4,6 +4,8 @@ Bookmark and quickly navigate important messages in long ChatGPT conversations.
 ChatGPT Marker is a Chrome extension that lets you bookmark key messages directly inside ChatGPT and jump back to them instantly using a floating bookmarks panel.  
 It’s built to work reliably with ChatGPT’s single-page app (SPA) behavior, frequent DOM re-renders, and dynamic message loading.
 
+[Watch demo video](https://www.youtube.com/watch?v=JyN_yrJPgwQ)
+
 ---
 
 ## ✨ Features

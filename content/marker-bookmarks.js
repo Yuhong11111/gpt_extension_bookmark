@@ -22,6 +22,12 @@ function tryResolveTarget(msgId) {
   return findMessageByIdOrIndex(msgId);
 }
 
+function applyBookmarkButtonState(btn, isBookmarked) {
+  btn.classList.toggle("is-bookmarked", isBookmarked);
+  btn.setAttribute("aria-label", isBookmarked ? "Remove bookmark" : "Bookmark message");
+  btn.setAttribute("data-tooltip", isBookmarked ? "Remove bookmark" : "Bookmark message");
+}
+
 async function toggleBookmark(msgId, preview) {
   const convId = getConversationId();
   const list = await loadConversation(convId);
@@ -44,7 +50,7 @@ async function updateButtonStates() {
 
   document.querySelectorAll(".cgpt-marker-btn").forEach((btn) => {
     const msgId = btn.getAttribute("data-msg-id");
-    btn.classList.toggle("is-bookmarked", set.has(msgId));
+    applyBookmarkButtonState(btn, set.has(msgId));
   });
 }
 
@@ -88,8 +94,6 @@ function decorate() {
       const btn = document.createElement("button");
       btn.className = "cgpt-marker-btn";
       btn.type = "button";
-      btn.setAttribute("aria-label", "Bookmark message");
-      btn.setAttribute("data-tooltip", "Mark Message");
       btn.setAttribute("data-msg-id", el.id);
       btn.appendChild(createMarkIcon());
 
@@ -99,6 +103,7 @@ function decorate() {
       });
 
       btn.classList.add("cgpt-marker-btn-inline");
+      applyBookmarkButtonState(btn, false);
       targetHost.appendChild(btn);
     }
   });

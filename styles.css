@@ -184,7 +184,7 @@
     gap: 8px;
 }
 
-.cgpt-marker-item-row > div {
+.cgpt-marker-item-row>div {
     flex: 1 1 auto;
 }
 

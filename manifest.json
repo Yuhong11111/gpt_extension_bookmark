@@ -15,7 +15,11 @@
                 "https://chatgpt.com/*"
             ],
             "js": [
-                "content.js"
+                "content/marker-core.js",
+                "content/marker-storage.js",
+                "content/marker-bookmarks.js",
+                "content/marker-ui.js",
+                "content/content.js"
             ],
             "css": [
                 "styles.css"

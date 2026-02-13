@@ -1,10 +1,20 @@
+let searchQuery = "";
+
 // Launcher and panel UI.
 function applyLauncherPos(btn, pos) {
   if (!pos) return;
   const maxLeft = window.innerWidth - btn.offsetWidth - LAUNCHER_MARGIN;
   const maxTop = window.innerHeight - btn.offsetHeight - LAUNCHER_MARGIN;
-  const left = clamp(pos.left, LAUNCHER_MARGIN, Math.max(LAUNCHER_MARGIN, maxLeft));
-  const top = clamp(pos.top, LAUNCHER_MARGIN, Math.max(LAUNCHER_MARGIN, maxTop));
+  const left = clamp(
+    pos.left,
+    LAUNCHER_MARGIN,
+    Math.max(LAUNCHER_MARGIN, maxLeft)
+  );
+  const top = clamp(
+    pos.top,
+    LAUNCHER_MARGIN,
+    Math.max(LAUNCHER_MARGIN, maxTop)
+  );
   btn.style.left = `${left}px`;
   btn.style.top = `${top}px`;
   btn.style.right = "auto";
@@ -60,7 +70,9 @@ function ensureLauncher() {
     }
     const panel = ensurePanel();
     renderPanel();
-    const isHidden = panel.style.display === "none" || getComputedStyle(panel).display === "none";
+    const isHidden =
+      panel.style.display === "none" ||
+      getComputedStyle(panel).display === "none";
     panel.style.display = isHidden ? "block" : "none";
     if (panel.style.display === "block") {
       positionPanelNearLauncher(panel, btn);
@@ -96,8 +108,16 @@ function ensureLauncher() {
 
     const maxLeft = window.innerWidth - btn.offsetWidth - LAUNCHER_MARGIN;
     const maxTop = window.innerHeight - btn.offsetHeight - LAUNCHER_MARGIN;
-    const nextLeft = clamp(dragStart.left + dx, LAUNCHER_MARGIN, Math.max(LAUNCHER_MARGIN, maxLeft));
-    const nextTop = clamp(dragStart.top + dy, LAUNCHER_MARGIN, Math.max(LAUNCHER_MARGIN, maxTop));
+    const nextLeft = clamp(
+      dragStart.left + dx,
+      LAUNCHER_MARGIN,
+      Math.max(LAUNCHER_MARGIN, maxLeft)
+    );
+    const nextTop = clamp(
+      dragStart.top + dy,
+      LAUNCHER_MARGIN,
+      Math.max(LAUNCHER_MARGIN, maxTop)
+    );
     btn.style.left = `${nextLeft}px`;
     btn.style.top = `${nextTop}px`;
     btn.style.right = "auto";
@@ -151,6 +171,15 @@ function ensurePanel() {
         <button class="cgpt-marker-header-btn" id="cgptClose" type="button">Close</button>
       </div>
     </header>
+      <div class="cgpt-marker-search">
+    <input
+      id="cgptMarkerSearch"
+      class="cgpt-marker-search-input"
+      type="text"
+      placeholder="Search bookmarks..."
+      autocomplete="off"
+    />
+  </div>
     <div class="cgpt-marker-list"></div>
   `;
   document.body.appendChild(panel);
@@ -164,6 +193,13 @@ function ensurePanel() {
     await renderPanel();
     await updateButtonStates();
   });
+  const searchInput = panel.querySelector("#cgptMarkerSearch");
+  searchInput.value = searchQuery;
+
+  searchInput.addEventListener("input", async (e) => {
+    searchQuery = e.target.value || "";
+    await renderPanel();
+  });
 
   return panel;
 }
@@ -175,8 +211,16 @@ async function renderPanel() {
 
   const list = await loadConversation(getConversationId());
 
-  if (list.length === 0) {
-    listEl.innerHTML = '<div class="cgpt-marker-muted">No bookmarks yet. Hover a message and click Mark.</div>';
+  const q = searchQuery.trim().toLowerCase();
+  const filtered = q
+    ? list.filter((item) => (item.preview || "").toLowerCase().includes(q))
+    : list;
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = q
+      ? '<div class="cgpt-marker-muted">No matching bookmarks.</div>'
+      : '<div class="cgpt-marker-muted">No bookmarks yet. Hover a message and click Mark.</div>';
+
     if (panel.style.display === "block" && launcher) {
       positionPanelNearLauncher(panel, launcher);
     }
@@ -184,7 +228,7 @@ async function renderPanel() {
   }
 
   listEl.innerHTML = "";
-  for (const item of list) {
+  for (const item of filtered) {
     const row = document.createElement("div");
     row.className = "cgpt-marker-item";
     row.innerHTML = `
@@ -215,7 +259,8 @@ async function renderPanel() {
         const target = tryResolveTarget(msgId);
         if (!target) return false;
 
-        const resolved = target.closest?.("[data-message-author-role]") || target;
+        const resolved =
+          target.closest?.("[data-message-author-role]") || target;
 
         resolved.scrollIntoView({ behavior: "smooth", block: "start" });
         await new Promise((r) => setTimeout(r, 450));

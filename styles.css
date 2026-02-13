@@ -1,296 +1,343 @@
 /* Wrap each message so the "Mark" button can be positioned */
 .cgpt-marker-wrap {
-    position: relative;
-    overflow: visible;
+  position: relative;
+  overflow: visible;
 }
 
 /* --- Mark button (right side of message) --- */
 .cgpt-marker-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
 
-    border: 1px solid rgba(0, 0, 0, 0.10);
-    background: rgb(255, 255, 255);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgb(255, 255, 255);
 
-    border-radius: 10px;
-    padding: 6px 10px;
-    cursor: pointer;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
 
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.2px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
 
-    opacity: 0;
-    transition: opacity 0.15s, transform 0.15s, background 0.15s;
-    user-select: none;
-    z-index: 2;
+  opacity: 0;
+  transition: opacity 0.15s, transform 0.15s, background 0.15s;
+  user-select: none;
+  z-index: 2;
 }
 
 .cgpt-marker-btn-inline {
-    position: static;
-    opacity: 1;
-    border: none;
-    background: transparent;
-    padding: 0 6px;
-    font-size: 12px;
+  position: static;
+  opacity: 1;
+  border: none;
+  background: transparent;
+  padding: 0 6px;
+  font-size: 12px;
 }
 
 .cgpt-marker-btn-inline:hover {
-    background: rgba(0, 0, 0, 0.06);
-    border-radius: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
 }
 
 /* show on hover */
 .cgpt-marker-wrap:hover .cgpt-marker-btn {
-    opacity: 1;
-    transform: translateY(-1px);
+  opacity: 1;
+  transform: translateY(-1px);
 }
 
 /* bookmarked state */
 .cgpt-marker-btn.is-bookmarked {
-    opacity: 1;
-    background: rgb(255, 219, 120);
-    border-color: rgba(255, 179, 0, 0.335);
+  opacity: 1;
+  background: rgb(255, 219, 120);
+  border-color: rgba(255, 179, 0, 0.335);
 }
 
 /* --- Bottom-right launcher icon (always visible, medium, circle) --- */
 .cgpt-marker-launcher {
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
 
-    width: 50px;
-    height: 50px;
-    border-radius: 999px;
-    /* circle */
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  /* circle */
 
-    border: 1px solid rgba(15, 23, 42, 0.12);
-    background:
-        radial-gradient(120% 120% at 30% 20%, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 45%, rgba(226, 232, 240, 0.95) 100%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(226, 232, 240, 0.7));
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: radial-gradient(
+      120% 120% at 30% 20%,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(248, 250, 252, 0.9) 45%,
+      rgba(226, 232, 240, 0.95) 100%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(226, 232, 240, 0.7));
 
-    box-shadow:
-        0 14px 30px rgba(15, 23, 42, 0.22),
-        0 2px 6px rgba(15, 23, 42, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    cursor: pointer;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22),
+    0 2px 6px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  cursor: pointer;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    color: #0f172a;
+  color: #0f172a;
 
-    z-index: 999999;
-    user-select: none;
+  z-index: 999999;
+  user-select: none;
 
-    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .cgpt-marker-launcher.is-dragging {
-    transition: none;
-    cursor: grabbing;
-    transform: none;
+  transition: none;
+  cursor: grabbing;
+  transform: none;
 }
 
 .cgpt-marker-launcher-icon {
-    width: 22px;
-    height: 22px;
-    display: block;
-    filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.18));
+  width: 22px;
+  height: 22px;
+  display: block;
+  filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.18));
 }
 
 .cgpt-marker-launcher:hover {
-    transform: translateY(-2px) scale(1.03);
-    border-color: rgba(15, 23, 42, 0.18);
-    background:
-        radial-gradient(120% 120% at 30% 20%, #ffffff 0%, #f8fafc 45%, #e2e8f0 100%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(226, 232, 240, 0.9));
-    box-shadow:
-        0 18px 34px rgba(15, 23, 42, 0.24),
-        0 4px 10px rgba(15, 23, 42, 0.16),
-        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px) scale(1.03);
+  border-color: rgba(15, 23, 42, 0.18);
+  background: radial-gradient(
+      120% 120% at 30% 20%,
+      #ffffff 0%,
+      #f8fafc 45%,
+      #e2e8f0 100%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(226, 232, 240, 0.9));
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.24),
+    0 4px 10px rgba(15, 23, 42, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .cgpt-marker-launcher:active {
-    transform: translateY(0) scale(0.99);
+  transform: translateY(0) scale(0.99);
 }
 
 /* --- Bookmark panel (wider + taller; draggable-friendly header) --- */
 .cgpt-marker-panel {
-    position: fixed;
-    right: 16px;
-    bottom: 72px;
-    /* sits above launcher */
+  position: fixed;
+  right: 16px;
+  bottom: 72px;
+  /* sits above launcher */
 
-    width: 320px;
-    max-height: 60vh;
-    overflow: hidden;
+  width: 320px;
+  max-height: 60vh;
+  overflow: hidden;
 
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 
-    z-index: 999999;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  z-index: 999999;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
 
-    /* helpful later if you implement drag: */
-    will-change: transform;
+  /* helpful later if you implement drag: */
+  will-change: transform;
+}
+/* --- Search box inside bookmark panel --- */
+.cgpt-marker-search {
+  padding: 8px 12px 0 12px;
+}
+
+.cgpt-marker-search-input {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 8px 10px;
+  border-radius: 10px;
+
+  font-size: 12px;
+  outline: none;
+
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.03);
+
+  transition: border 0.15s ease, background 0.15s ease;
+}
+
+.cgpt-marker-search-input:focus {
+  border-color: rgba(255, 179, 0, 0.6);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* Header can become your drag handle later */
 .cgpt-marker-panel header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-    padding: 10px 12px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 
-    font-weight: 700;
-    font-size: 13px;
+  font-weight: 700;
+  font-size: 13px;
 
-    /* drag-friendly cue later */
-    cursor: grab;
-    user-select: none;
+  /* drag-friendly cue later */
+  cursor: grab;
+  user-select: none;
 }
 
 .cgpt-marker-panel .cgpt-marker-list {
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 
-    max-height: calc(60vh - 44px);
-    /* leaves room for header */
-    overflow: auto;
+  max-height: calc(60vh - 44px);
+  /* leaves room for header */
+  overflow: auto;
 }
 
 .cgpt-marker-item {
-    padding: 9px 10px;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.04);
+  padding: 9px 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.04);
 
-    cursor: pointer;
-    font-size: 12px;
-    line-height: 1.35;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .cgpt-marker-item-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
 }
 
-.cgpt-marker-item-row>div {
-    flex: 1 1 auto;
+.cgpt-marker-item-row > div {
+  flex: 1 1 auto;
 }
 
 .cgpt-marker-item-remove {
-    flex: 0 0 auto;
-    width: 18px;
-    height: 18px;
-    border-radius: 999px;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    background: rgba(255, 255, 255, 0.8);
-    color: rgba(15, 23, 42, 0.7);
-    font-size: 14px;
-    line-height: 16px;
-    padding: 0;
-    cursor: pointer;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.8);
+  color: rgba(15, 23, 42, 0.7);
+  font-size: 14px;
+  line-height: 16px;
+  padding: 0;
+  cursor: pointer;
 }
 
 .cgpt-marker-item-remove:hover {
-    color: rgba(15, 23, 42, 0.9);
-    background: rgba(255, 255, 255, 0.95);
+  color: rgba(15, 23, 42, 0.9);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .cgpt-marker-item:hover {
-    background: rgba(0, 0, 0, 0.07);
+  background: rgba(0, 0, 0, 0.07);
 }
 
 .cgpt-marker-muted {
-    opacity: 0.7;
-    font-size: 11px;
+  opacity: 0.7;
+  font-size: 11px;
 }
 
 /* Optional: little close/clear buttons inside header */
 .cgpt-marker-header-btn {
-    border: none;
-    background: rgba(0, 0, 0, 0.06);
-    border-radius: 10px;
-    padding: 6px 8px;
-    cursor: pointer;
-    font-size: 12px;
+  border: none;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
-    .cgpt-marker-btn {
-        border-color: rgba(255, 255, 255, 0.15);
-        background: rgba(20, 24, 32, 0.9);
-        color: #e2e8f0;
-    }
+  .cgpt-marker-btn {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(20, 24, 32, 0.9);
+    color: #e2e8f0;
+  }
 
-    .cgpt-marker-btn.is-bookmarked {
-        background: rgba(234, 179, 8, 0.25);
-        border-color: rgba(234, 179, 8, 0.45);
-        color: #fef3c7;
-    }
+  .cgpt-marker-btn.is-bookmarked {
+    background: rgba(234, 179, 8, 0.25);
+    border-color: rgba(234, 179, 8, 0.45);
+    color: #fef3c7;
+  }
 
-    .cgpt-marker-btn-inline {
-        color: #e2e8f0;
-    }
+  .cgpt-marker-btn-inline {
+    color: #e2e8f0;
+  }
 
-    .cgpt-marker-btn-inline:hover {
-        background: rgba(255, 255, 255, 0.08);
-    }
+  .cgpt-marker-btn-inline:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
 
-    .cgpt-marker-launcher {
-        border-color: rgba(255, 255, 255, 0.14);
-        background:
-            radial-gradient(120% 120% at 30% 20%, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 45%, rgba(2, 6, 23, 0.95) 100%),
-            linear-gradient(180deg, rgba(30, 41, 59, 0.7), rgba(2, 6, 23, 0.85));
-        box-shadow:
-            0 14px 30px rgba(0, 0, 0, 0.45),
-            0 2px 6px rgba(0, 0, 0, 0.35),
-            inset 0 1px 0 rgba(255, 255, 255, 0.06);
-        color: #e2e8f0;
-    }
+  .cgpt-marker-launcher {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: radial-gradient(
+        120% 120% at 30% 20%,
+        rgba(30, 41, 59, 0.9) 0%,
+        rgba(15, 23, 42, 0.95) 45%,
+        rgba(2, 6, 23, 0.95) 100%
+      ),
+      linear-gradient(180deg, rgba(30, 41, 59, 0.7), rgba(2, 6, 23, 0.85));
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+  }
 
-    .cgpt-marker-launcher:hover {
-        border-color: rgba(255, 255, 255, 0.2);
-        background:
-            radial-gradient(120% 120% at 30% 20%, rgba(51, 65, 85, 0.95) 0%, rgba(15, 23, 42, 0.95) 45%, rgba(2, 6, 23, 1) 100%),
-            linear-gradient(180deg, rgba(51, 65, 85, 0.8), rgba(2, 6, 23, 0.95));
-    }
+  .cgpt-marker-launcher:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: radial-gradient(
+        120% 120% at 30% 20%,
+        rgba(51, 65, 85, 0.95) 0%,
+        rgba(15, 23, 42, 0.95) 45%,
+        rgba(2, 6, 23, 1) 100%
+      ),
+      linear-gradient(180deg, rgba(51, 65, 85, 0.8), rgba(2, 6, 23, 0.95));
+  }
 
-    .cgpt-marker-panel {
-        background: rgba(15, 23, 42, 0.95);
-        border-color: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        color: #e2e8f0;
-    }
+  .cgpt-marker-search-input {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+  }
 
-    .cgpt-marker-panel header {
-        border-bottom-color: rgba(255, 255, 255, 0.08);
-    }
+  .cgpt-marker-search-input:focus {
+    border-color: rgba(234, 179, 8, 0.6);
+    background: rgba(255, 255, 255, 0.08);
+  }
 
-    .cgpt-marker-item {
-        background: rgba(255, 255, 255, 0.06);
-    }
+  .cgpt-marker-panel {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    color: #e2e8f0;
+  }
 
-    .cgpt-marker-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
+  .cgpt-marker-panel header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
 
-    .cgpt-marker-muted {
-        opacity: 0.7;
-    }
+  .cgpt-marker-item {
+    background: rgba(255, 255, 255, 0.06);
+  }
 
-    .cgpt-marker-header-btn {
-        background: rgba(255, 255, 255, 0.08);
-        color: #e2e8f0;
-    }
+  .cgpt-marker-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .cgpt-marker-muted {
+    opacity: 0.7;
+  }
+
+  .cgpt-marker-header-btn {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+  }
 }

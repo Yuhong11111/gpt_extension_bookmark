@@ -1,8 +1,31 @@
 // Bookmark and message decoration logic.
+function createMarkIcon() {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  svg.classList.add("cgpt-marker-btn-icon");
+
+  const path = document.createElementNS(ns, "path");
+  path.setAttribute(
+    "d",
+    "M6 4.5h12a1 1 0 0 1 1 1V21l-7-4-7 4V5.5a1 1 0 0 1 1-1Z"
+  );
+  svg.appendChild(path);
+  return svg;
+}
+
 function tryResolveTarget(msgId) {
   // Ensure ids are assigned before resolving
   decorate();
   return findMessageByIdOrIndex(msgId);
+}
+
+function applyBookmarkButtonState(btn, isBookmarked) {
+  btn.classList.toggle("is-bookmarked", isBookmarked);
+  btn.setAttribute("aria-label", isBookmarked ? "Remove bookmark" : "Bookmark message");
+  btn.setAttribute("data-tooltip", isBookmarked ? "Remove bookmark" : "Bookmark message");
 }
 
 async function toggleBookmark(msgId, preview) {
@@ -27,7 +50,7 @@ async function updateButtonStates() {
 
   document.querySelectorAll(".cgpt-marker-btn").forEach((btn) => {
     const msgId = btn.getAttribute("data-msg-id");
-    btn.classList.toggle("is-bookmarked", set.has(msgId));
+    applyBookmarkButtonState(btn, set.has(msgId));
   });
 }
 
@@ -71,8 +94,8 @@ function decorate() {
       const btn = document.createElement("button");
       btn.className = "cgpt-marker-btn";
       btn.type = "button";
-      btn.textContent = "Mark";
       btn.setAttribute("data-msg-id", el.id);
+      btn.appendChild(createMarkIcon());
 
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -80,6 +103,7 @@ function decorate() {
       });
 
       btn.classList.add("cgpt-marker-btn-inline");
+      applyBookmarkButtonState(btn, false);
       targetHost.appendChild(btn);
     }
   });

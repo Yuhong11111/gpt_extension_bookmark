@@ -89,7 +89,7 @@ function decorate() {
       btn.className = "cgpt-marker-btn";
       btn.type = "button";
       btn.setAttribute("aria-label", "Bookmark message");
-      btn.title = "Bookmark message";
+      btn.setAttribute("data-tooltip", "Mark Message");
       btn.setAttribute("data-msg-id", el.id);
       btn.appendChild(createMarkIcon());
 

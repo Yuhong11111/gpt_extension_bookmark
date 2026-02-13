@@ -28,15 +28,23 @@
 }
 
 .cgpt-marker-btn-inline {
-    position: static;
+    position: relative;
     opacity: 1;
     border: none;
     background: transparent;
-    padding: 3px 6px;
-    display: inline-flex;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
     align-items: center;
     justify-content: center;
+    line-height: 0;
+    flex: 0 0 auto;
     color: rgba(15, 23, 42, 0.72);
+    overflow: visible;
+    border-radius: 8px;
+    margin-left: 6px;
+    margin-top: -4px;
 }
 
 .cgpt-marker-btn-inline:hover {
@@ -44,12 +52,38 @@
     border-radius: 8px;
 }
 
+.cgpt-marker-btn-inline::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 8px);
+    transform: translateX(-50%);
+    background: rgba(17, 17, 17, 0.96);
+    color: #eef0f4;
+    border-radius: 14px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.14s ease;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.cgpt-marker-btn-inline:hover::after,
+.cgpt-marker-btn-inline:focus-visible::after {
+    opacity: 1;
+    visibility: visible;
+}
+
 .cgpt-marker-btn-icon {
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
     display: block;
-    transform: scale(1.2);
-    transform-origin: center;
 }
 
 .cgpt-marker-btn-icon path {

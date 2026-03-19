@@ -33,6 +33,10 @@ function start() {
     if (panel.contains(e.target) || launcher.contains(e.target)) return;
     panel.style.display = "none";
   });
+
+  // Hide the floating tooltip when layout changes move the hovered button.
+  window.addEventListener("scroll", hideBookmarkTooltip, true);
+  window.addEventListener("resize", hideBookmarkTooltip);
 }
 
 start();

@@ -22,15 +22,40 @@ function getConversationId() {
   return m ? m[1] : "unknown";
 }
 
+function getMessageContainer(el) {
+  if (!el) return null;
+  // ChatGPT nests the actual message body inside a larger turn wrapper that also owns the action bar.
+  return (
+    el.closest?.(
+      'section[data-turn-id], section[data-testid^="conversation-turn-"], article[data-testid^="conversation-turn-"], article'
+    ) || el
+  );
+}
+
 // It return an array of message container elements
 function getMessageNodes() {
-  // Best-case selector: message containers carry this attribute
+  // ChatGPT currently puts this attribute on the message content, not the whole turn.
   const direct = Array.from(document.querySelectorAll("[data-message-author-role]"));
-  if (direct.length) return direct;
+  if (direct.length) {
+    return Array.from(
+      new Set(direct.map((el) => getMessageContainer(el)).filter(Boolean))
+    );
+  }
 
   // Fallback: containers that contain those nodes
-  const containers = Array.from(document.querySelectorAll("main div, article div"));
-  return containers.filter((el) => el.querySelector?.("[data-message-author-role]"));
+  const containers = Array.from(
+    document.querySelectorAll(
+      'section[data-turn-id], section[data-testid^="conversation-turn-"], article[data-testid^="conversation-turn-"], article, main div'
+    )
+  );
+  return Array.from(
+    new Set(
+      containers
+        .filter((el) => el.querySelector?.("[data-message-author-role]"))
+        .map((el) => getMessageContainer(el))
+        .filter(Boolean)
+    )
+  );
 }
 
 function ensureMessageId(el, index) {
@@ -56,7 +81,7 @@ function findMessageByIdOrIndex(msgId) {
 
   const raw = msgId.replace(/^cgpt-msg-/, "");
   target = document.querySelector(`[data-message-id="${raw}"]`);
-  if (target) return target.closest?.("[data-message-author-role]") || target;
+  if (target) return getMessageContainer(target);
 
   const m = msgId.match(/^cgpt-msg-(\d+)$/);
   if (m) {
@@ -68,7 +93,9 @@ function findMessageByIdOrIndex(msgId) {
 }
 
 function previewText(el) {
-  const t = (el.innerText || "").trim().replace(/\s+/g, " ");
+  // Pull preview text from the message body instead of the whole turn so action labels are excluded.
+  const source = el.querySelector?.("[data-message-author-role]") || el;
+  const t = (source.innerText || "").trim().replace(/\s+/g, " ");
   if (!t) return "(no text)";
   return t.slice(0, 90) + (t.length > 90 ? "…" : "");
 }

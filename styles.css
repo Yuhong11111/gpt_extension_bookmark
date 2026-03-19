@@ -43,41 +43,15 @@
   color: rgba(15, 23, 42, 0.72);
   overflow: visible;
   border-radius: 8px;
-  margin-left: 6px;
-  margin-top: -4px;
+  /* Tuned against the response-actions row so the custom icon lines up with native buttons. */
+  margin-left: 10px;
+  margin-top: -15px;
+  pointer-events: auto;
 }
 
 .cgpt-marker-btn-inline:hover {
   background: rgba(0, 0, 0, 0.06);
   border-radius: 8px;
-}
-
-.cgpt-marker-btn-inline::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  left: 50%;
-  top: calc(100% + 8px);
-  transform: translateX(-50%);
-  background: rgba(17, 17, 17, 0.96);
-  color: #eef0f4;
-  border-radius: 14px;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.1px;
-  line-height: 1;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.14s ease;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.cgpt-marker-btn-inline:hover::after,
-.cgpt-marker-btn-inline:focus-visible::after {
-  opacity: 1;
-  visibility: visible;
 }
 
 .cgpt-marker-btn-icon {
@@ -112,6 +86,28 @@
   stroke: none;
 }
 
+.cgpt-marker-tooltip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  /* Fixed positioning keeps the tooltip outside ChatGPT's masked action-bar container. */
+  background: rgba(17, 17, 17, 0.96);
+  color: #eef0f4;
+  border-radius: 14px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2147483647;
+}
+
+.cgpt-marker-tooltip[hidden] {
+  display: none;
+}
+
 /* --- Bottom-right launcher icon (always visible, medium, circle) --- */
 .cgpt-marker-launcher {
   position: fixed;
@@ -124,12 +120,10 @@
   /* circle */
 
   border: 1px solid rgba(15, 23, 42, 0.12);
-  background: radial-gradient(
-      120% 120% at 30% 20%,
+  background: radial-gradient(120% 120% at 30% 20%,
       rgba(255, 255, 255, 0.95) 0%,
       rgba(248, 250, 252, 0.9) 45%,
-      rgba(226, 232, 240, 0.95) 100%
-    ),
+      rgba(226, 232, 240, 0.95) 100%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(226, 232, 240, 0.7));
 
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22),
@@ -165,12 +159,10 @@
 .cgpt-marker-launcher:hover {
   transform: translateY(-2px) scale(1.03);
   border-color: rgba(15, 23, 42, 0.18);
-  background: radial-gradient(
-      120% 120% at 30% 20%,
+  background: radial-gradient(120% 120% at 30% 20%,
       #ffffff 0%,
       #f8fafc 45%,
-      #e2e8f0 100%
-    ),
+      #e2e8f0 100%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(226, 232, 240, 0.9));
   box-shadow: 0 18px 34px rgba(15, 23, 42, 0.24),
     0 4px 10px rgba(15, 23, 42, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.95);
@@ -202,6 +194,7 @@
   /* helpful later if you implement drag: */
   will-change: transform;
 }
+
 /* --- Search box inside bookmark panel --- */
 .cgpt-marker-search {
   padding: 8px 12px 0 12px;
@@ -272,7 +265,7 @@
   gap: 8px;
 }
 
-.cgpt-marker-item-row > div {
+.cgpt-marker-item-row>div {
   flex: 1 1 auto;
 }
 
@@ -337,12 +330,10 @@
 
   .cgpt-marker-launcher {
     border-color: rgba(255, 255, 255, 0.14);
-    background: radial-gradient(
-        120% 120% at 30% 20%,
+    background: radial-gradient(120% 120% at 30% 20%,
         rgba(30, 41, 59, 0.9) 0%,
         rgba(15, 23, 42, 0.95) 45%,
-        rgba(2, 6, 23, 0.95) 100%
-      ),
+        rgba(2, 6, 23, 0.95) 100%),
       linear-gradient(180deg, rgba(30, 41, 59, 0.7), rgba(2, 6, 23, 0.85));
     box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.35),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
@@ -351,12 +342,10 @@
 
   .cgpt-marker-launcher:hover {
     border-color: rgba(255, 255, 255, 0.2);
-    background: radial-gradient(
-        120% 120% at 30% 20%,
+    background: radial-gradient(120% 120% at 30% 20%,
         rgba(51, 65, 85, 0.95) 0%,
         rgba(15, 23, 42, 0.95) 45%,
-        rgba(2, 6, 23, 1) 100%
-      ),
+        rgba(2, 6, 23, 1) 100%),
       linear-gradient(180deg, rgba(51, 65, 85, 0.8), rgba(2, 6, 23, 0.95));
   }
 

@@ -22,10 +22,63 @@ function tryResolveTarget(msgId) {
   return findMessageByIdOrIndex(msgId);
 }
 
+function ensureBookmarkTooltip() {
+  let tooltip = document.querySelector(".cgpt-marker-tooltip");
+  if (tooltip) return tooltip;
+
+  // Render the tooltip at the document level so ChatGPT's masked action bar cannot clip it.
+  tooltip = document.createElement("div");
+  tooltip.className = "cgpt-marker-tooltip";
+  tooltip.setAttribute("role", "tooltip");
+  tooltip.hidden = true;
+  document.body.appendChild(tooltip);
+  return tooltip;
+}
+
+function positionBookmarkTooltip(btn, tooltip) {
+  const rect = btn.getBoundingClientRect();
+  const tooltipRect = tooltip.getBoundingClientRect();
+  const left = clamp(
+    rect.left + rect.width / 2 - tooltipRect.width / 2,
+    8,
+    window.innerWidth - tooltipRect.width - 8
+  );
+  const top = Math.max(8, rect.bottom + 8);
+  tooltip.style.left = `${left}px`;
+  tooltip.style.top = `${top}px`;
+}
+
+function showBookmarkTooltip(btn) {
+  const text = btn.getAttribute("data-tooltip");
+  if (!text) return;
+  const tooltip = ensureBookmarkTooltip();
+  tooltip.textContent = text;
+  tooltip.hidden = false;
+  positionBookmarkTooltip(btn, tooltip);
+}
+
+function hideBookmarkTooltip() {
+  const tooltip = document.querySelector(".cgpt-marker-tooltip");
+  if (tooltip) tooltip.hidden = true;
+}
+
+function attachBookmarkTooltip(btn) {
+  if (btn.dataset.tooltipBound === "true") return;
+  btn.dataset.tooltipBound = "true";
+
+  // Bind once because decorate() runs repeatedly as the SPA re-renders.
+  btn.addEventListener("mouseenter", () => showBookmarkTooltip(btn));
+  btn.addEventListener("mouseleave", hideBookmarkTooltip);
+  btn.addEventListener("focus", () => showBookmarkTooltip(btn));
+  btn.addEventListener("blur", hideBookmarkTooltip);
+}
+
 function applyBookmarkButtonState(btn, isBookmarked) {
+  const label = isBookmarked ? "Remove bookmark" : "Bookmark message";
   btn.classList.toggle("is-bookmarked", isBookmarked);
-  btn.setAttribute("aria-label", isBookmarked ? "Remove bookmark" : "Bookmark message");
-  btn.setAttribute("data-tooltip", isBookmarked ? "Remove bookmark" : "Bookmark message");
+  btn.setAttribute("aria-label", label);
+  btn.setAttribute("data-tooltip", label);
+  btn.setAttribute("title", label);
 }
 
 async function toggleBookmark(msgId, preview) {
@@ -54,6 +107,22 @@ async function updateButtonStates() {
   });
 }
 
+function findActionBar(el) {
+  // Prefer the explicit response-actions container in the current ChatGPT DOM, then fall back to older layouts.
+  return (
+    el.querySelector('div[aria-label="Response actions"]') ||
+    el.querySelector('[data-testid="copy-turn-action-button"]')?.closest("div") ||
+    el.querySelector("div.z-0.flex.justify-end") ||
+    el.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-start") ||
+    el.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-end") ||
+    el.closest("article")?.querySelector('div[aria-label="Response actions"]') ||
+    el.closest("article")?.querySelector("div.z-0.flex.justify-end") ||
+    el.closest("article")?.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-start") ||
+    el.closest("article")?.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-end") ||
+    null
+  );
+}
+
 function decorate() {
   // Get all message nodes
   const nodes = getMessageNodes();
@@ -68,27 +137,23 @@ function decorate() {
 
     if (!hasWrap) el.classList.add("cgpt-marker-wrap");
 
-    const article = el.closest("article");
-    const actionBar =
-      // user message action bar
-      article?.querySelector("div.z-0.flex.justify-end") ||
-      // assistant message action bar
-      article?.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-start") ||
-      article?.querySelector("div.z-0.flex.min-h-\\[46px\\].justify-end") ||
-      article?.querySelector('[data-testid="copy-turn-action-button"]')?.closest("div") ||
-      null;
+    const actionBar = findActionBar(el);
     if (!actionBar) {
       // If action bar isn't present (e.g. streaming response), don't show hover button.
-      const oldBtn = el.querySelector(`.cgpt-marker-btn[data-msg-id="${el.id}"]`);
-      if (oldBtn) oldBtn.remove();
+      document
+        .querySelectorAll(`.cgpt-marker-btn[data-msg-id="${el.id}"]`)
+        .forEach((btn) => btn.remove());
       return;
     }
 
     const targetHost = actionBar;
 
-    // Remove any old button that was attached to the message box
-    const oldBtn = el.querySelector(`.cgpt-marker-btn[data-msg-id="${el.id}"]`);
-    if (oldBtn) oldBtn.remove();
+    // ChatGPT frequently re-parents action rows, so clean up copies left on stale hosts.
+    document
+      .querySelectorAll(`.cgpt-marker-btn[data-msg-id="${el.id}"]`)
+      .forEach((btn) => {
+        if (!targetHost.contains(btn)) btn.remove();
+      });
 
     if (!targetHost.querySelector(`.cgpt-marker-btn[data-msg-id="${el.id}"]`)) {
       const btn = document.createElement("button");
@@ -104,6 +169,7 @@ function decorate() {
 
       btn.classList.add("cgpt-marker-btn-inline");
       applyBookmarkButtonState(btn, false);
+      attachBookmarkTooltip(btn);
       targetHost.appendChild(btn);
     }
   });

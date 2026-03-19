@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "ChatGPT bookmark",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Bookmark messages in ChatGPT conversations and jump back quickly.",
     "permissions": [
         "storage"

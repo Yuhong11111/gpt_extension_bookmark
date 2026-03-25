@@ -15,7 +15,7 @@ web/
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 16
 - Java 21+
 - Maven
 

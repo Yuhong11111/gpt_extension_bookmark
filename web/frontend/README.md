@@ -1,27 +1,50 @@
-# Product Landing Page Template
+# Frontend
 
-This gorgeous responsive website is a static landing page built with React, styled components, react-router, and react hooks. All the components are reusable and can be used for any dynamic content. It's fully responsive for all the platforms and hosted using Netlify
+This frontend is a React app built with Create React App (`react-scripts@3.4.1`), `styled-components`, and `react-router-dom`.
 
-# Description 
+## Requirements
 
-This static landing page could be used for various product showcases. You can navigate to different pages possibly due to react-router. I always wanted to learn styled components and building a project is a practical way to learn.
-The only challenge I faced was using styled components, it was intimidating at first and since I used regular CSS and SASS it was weird without any classnames. At least styled-components are similar to SASS in terms of nesting lol! 
+- Node.js 16-18 recommended
+- npm
 
+## Run locally
 
-I referred to this doc for understanding styled components - [styled component doc](https://styled-components.com/).
+```bash
+npm install
+npm start
+```
 
+Dev server:
 
-[Click here to see the live demo](https://ultra-b73fc5.netlify.app/)
+```text
+http://localhost:3000
+```
 
-# Tech Stack
-* React
-* Styled Components
-* React Router
-* React Hooks
+## Build
 
-# Screenshot
-<img src="./UltraDesktop.png" alt="the screenshot of the app large screen"/>
-<img src="./UltraIPhone.png" alt="the screenshot of the app large screen"/>
+```bash
+npm run build
+```
 
-# Credits
-@briandesign
+## Compatibility note
+
+This project uses Webpack 4 through `react-scripts@3`. On newer Node/OpenSSL versions, that stack can throw:
+
+```text
+error:0308010C:digital envelope routines::unsupported
+```
+
+The package scripts already include:
+
+```text
+NODE_OPTIONS=--openssl-legacy-provider
+```
+
+so no extra shell setup is required before running `npm start` or `npm run build`.
+
+## Tech stack
+
+- React 17
+- Create React App
+- Styled Components
+- React Router

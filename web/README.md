@@ -2,7 +2,7 @@
 
 This folder contains the standalone web app for the extension:
 
-- `frontend/`: React + Vite
+- `frontend/`: React + Create React App
 - `backend/`: Spring Boot + Maven
 
 ## Structure
@@ -15,22 +15,38 @@ web/
 
 ## Requirements
 
-- Node.js 16
+- Node.js 16-18 recommended
 - Java 21+
 - Maven
+
+## Frontend compatibility note
+
+The frontend uses `react-scripts@3` and Webpack 4. On newer Node/OpenSSL combinations this can fail with:
+
+```text
+error:0308010C:digital envelope routines::unsupported
+```
+
+The npm `start` and `build` scripts in `frontend/package.json` already include:
+
+```text
+NODE_OPTIONS=--openssl-legacy-provider
+```
+
+so `npm start` and `npm run build` work without manually exporting that flag.
 
 ## Run frontend
 
 ```bash
 cd web/frontend
 npm install
-npm run dev
+npm start
 ```
 
 Frontend URL:
 
 ```text
-http://localhost:5173
+http://localhost:3000
 ```
 
 Build frontend:
@@ -87,13 +103,13 @@ cd web/backend
 ```bash
 cd web/frontend
 npm install
-npm run dev
+npm start
 ```
 
 3. Open:
 
 ```text
-http://localhost:5173
+http://localhost:3000
 ```
 
 ## Current API

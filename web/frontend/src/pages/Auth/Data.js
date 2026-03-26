@@ -8,7 +8,7 @@ export const homeObjOne = {
     description:
       'Get access to our exclusive diamond king package. Limited quantity available.',
     buttonLabel: 'Sign Up',
-    buttonTo: '/auth/sign-up',
+    buttonTo: '/sign-up',
     secondaryButtonLabel: 'Log In',
     secondaryButtonTo: '/login',
     imgStart: '',

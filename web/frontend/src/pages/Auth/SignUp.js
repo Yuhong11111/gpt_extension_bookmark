@@ -14,6 +14,7 @@ import {
   FieldRow,
   FieldLabel,
   FieldInput,
+  FieldError,
   FieldCheckboxRow,
   FieldCheckboxLabel,
   AuthNotice,
@@ -30,10 +31,13 @@ const initialForm = {
   agree: false
 };
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function SignUp() {
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -43,6 +47,9 @@ function SignUp() {
     if (error) {
       setError('');
     }
+    if (fieldErrors[name]) {
+      setFieldErrors((current) => ({ ...current, [name]: '' }));
+    }
     setForm((current) => ({
       ...current,
       [name]: type === 'checkbox' ? checked : value
@@ -51,12 +58,29 @@ function SignUp() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const nextFieldErrors = {};
+    const trimmedEmail = form.email.trim();
+
+    if (!EMAIL_PATTERN.test(trimmedEmail)) {
+      nextFieldErrors.email = 'Enter a valid email address.';
+    }
+
+    if (form.password.length < 8) {
+      nextFieldErrors.password = 'Password must be at least 8 characters.';
+    }
+
     if (form.password !== form.confirmPassword) {
+      nextFieldErrors.confirmPassword = 'Passwords do not match.';
+    }
+
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setFieldErrors(nextFieldErrors);
       setSubmitted(false);
-      setError('Passwords do not match.');
+      setError('Please fix the highlighted fields.');
       return;
     }
 
+    setFieldErrors({});
     setError('');
     setSubmitted(true);
   };
@@ -118,6 +142,7 @@ function SignUp() {
                   placeholder='you@example.com'
                   required
                 />
+                {fieldErrors.email ? <FieldError>{fieldErrors.email}</FieldError> : null}
               </FieldGroup>
 
               <FieldRow>
@@ -132,6 +157,7 @@ function SignUp() {
                     placeholder='Create a password'
                     required
                   />
+                  {fieldErrors.password ? <FieldError>{fieldErrors.password}</FieldError> : null}
                 </FieldGroup>
 
                 <FieldGroup>
@@ -145,6 +171,9 @@ function SignUp() {
                     placeholder='Repeat password'
                     required
                   />
+                  {fieldErrors.confirmPassword ? (
+                    <FieldError>{fieldErrors.confirmPassword}</FieldError>
+                  ) : null}
                 </FieldGroup>
               </FieldRow>
 

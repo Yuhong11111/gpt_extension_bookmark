@@ -13,6 +13,7 @@ import {
   FieldGroup,
   FieldLabel,
   FieldInput,
+  FieldError,
   AuthInlineAction,
   FieldCheckboxRow,
   FieldCheckboxLabel,
@@ -27,10 +28,13 @@ const initialForm = {
   rememberMe: false
 };
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function LogIn() {
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -40,6 +44,9 @@ function LogIn() {
     if (error) {
       setError('');
     }
+    if (fieldErrors[name]) {
+      setFieldErrors((current) => ({ ...current, [name]: '' }));
+    }
     setForm((current) => ({
       ...current,
       [name]: type === 'checkbox' ? checked : value
@@ -48,13 +55,25 @@ function LogIn() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const nextFieldErrors = {};
+    const trimmedEmail = form.email.trim();
 
-    if (!form.email.trim() || !form.password.trim()) {
+    if (!EMAIL_PATTERN.test(trimmedEmail)) {
+      nextFieldErrors.email = 'Enter a valid email address.';
+    }
+
+    if (form.password.trim().length < 8) {
+      nextFieldErrors.password = 'Password must be at least 8 characters.';
+    }
+
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setFieldErrors(nextFieldErrors);
       setSubmitted(false);
-      setError('Email and password are required.');
+      setError('Please fix the highlighted fields.');
       return;
     }
 
+    setFieldErrors({});
     setError('');
     setSubmitted(true);
   };
@@ -89,6 +108,7 @@ function LogIn() {
                   placeholder='you@example.com'
                   required
                 />
+                {fieldErrors.email ? <FieldError>{fieldErrors.email}</FieldError> : null}
               </FieldGroup>
 
               <FieldGroup>
@@ -102,6 +122,7 @@ function LogIn() {
                   placeholder='Enter your password'
                   required
                 />
+                {fieldErrors.password ? <FieldError>{fieldErrors.password}</FieldError> : null}
                 <AuthInlineAction to='/forgot-password'>Forgot password?</AuthInlineAction>
               </FieldGroup>
 

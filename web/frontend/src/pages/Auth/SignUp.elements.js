@@ -116,6 +116,13 @@ export const AuthInlineAction = styled(Link)`
   }
 `;
 
+export const FieldError = styled.p`
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+`;
+
 export const FieldCheckboxRow = styled.div`
   display: flex;
   align-items: flex-start;

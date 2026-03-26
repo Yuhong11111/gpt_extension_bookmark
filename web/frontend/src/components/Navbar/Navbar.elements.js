@@ -114,6 +114,10 @@ export const NavLinks = styled(Link)`
 `
 
 export const NavItemBtn = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
   @media screen and (max-width: 960px) {
     display: flex;
     justify-content: center;
@@ -128,9 +132,14 @@ export const NavBtnLink = styled(Link)`
   justify-content: center;
   align-items: center;
   text-decoration: none;
-  padding: 8px 16px;
-  height: 100%;
-  width: 100%;
+  padding: 8px 4px;
+  height: auto;
+  width: auto;
   border: none;
   outline: none;
+
+  @media screen and (max-width: 960px) {
+    width: 100%;
+    justify-content: center;
+  }
 `;

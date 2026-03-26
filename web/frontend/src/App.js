@@ -7,6 +7,7 @@ import Services from './pages/Services/Services';
 import Products from './pages/Products/Products';
 import SignUp from './pages/Auth/SignUp';
 import ScrollToTop from './components/ScrollToTop';
+import LogIn from './pages/Auth/LogIn';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route path='/services' component={Services} />
             <Route path='/products' component={Products} />
             <Route path='/sign-up' component={SignUp} />
+            <Route path='/log-in' component={LogIn} />
           </Switch>
           <Footer />
       </Router>

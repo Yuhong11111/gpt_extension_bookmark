@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 export const AuthSection = styled.section`
@@ -100,6 +101,18 @@ export const FieldInput = styled.input`
   &:focus {
     border-color: #4b59f7;
     box-shadow: 0 0 0 4px rgba(75, 89, 247, 0.14);
+  }
+`;
+
+export const AuthInlineAction = styled(Link)`
+  align-self: flex-end;
+  color: #4b59f7;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
   }
 `;
 

@@ -220,7 +220,7 @@ function SignUp() {
               </AuthHelperText>
 
               <AuthFooter>
-                Already have an account? <Link to='/login'>Log in</Link>
+                Already have an account? <Link to='/log-in'>Log in</Link>
               </AuthFooter>
             </AuthForm>
           </AuthCard>

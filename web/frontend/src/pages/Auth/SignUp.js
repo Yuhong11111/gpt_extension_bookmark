@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { Button, Container } from '../../globalStyles';
 import {
   AuthSection,
@@ -34,6 +35,7 @@ const initialForm = {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function SignUp() {
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -77,6 +79,20 @@ function SignUp() {
       setFieldErrors(nextFieldErrors);
       setSubmitted(false);
       setError('Please fix the highlighted fields.');
+      return;
+    }
+
+    try {
+      axios.post(`${API_BASE_URL}/auth/signup`, {
+        fullName: form.fullName,
+        email: form.email,
+        password: form.password,
+        company: form.company,
+        agree: form.agree
+      });
+    } catch (err) {
+      setError('An error occurred while creating your account. Please try again.');
+      setSubmitted(false);
       return;
     }
 

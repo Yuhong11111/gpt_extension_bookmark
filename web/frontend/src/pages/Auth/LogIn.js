@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Container } from '../../globalStyles';
+import axios from 'axios';
 import {
   AuthSection,
   AuthGrid,
@@ -31,6 +32,7 @@ const initialForm = {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function LogIn() {
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -70,6 +72,18 @@ function LogIn() {
       setFieldErrors(nextFieldErrors);
       setSubmitted(false);
       setError('Please fix the highlighted fields.');
+      return;
+    }
+    try {
+      // Replace this with your actual login API call
+      axios.post(`${API_BASE_URL}/auth/login`, {
+        email: form.email,
+        password: form.password,
+        rememberMe: form.rememberMe
+      });
+    } catch (err) {
+      setError('An error occurred during login. Please try again.');
+      setSubmitted(false);
       return;
     }
 

@@ -19,6 +19,7 @@ import {
   FieldCheckboxRow,
   FieldCheckboxLabel,
   AuthNotice,
+  AuthSuccessNotice,
   AuthHelperText,
   AuthFooter
 } from './SignUp.elements';
@@ -39,12 +40,16 @@ function SignUp() {
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
     if (submitted) {
       setSubmitted(false);
+    }
+    if (successMessage) {
+      setSuccessMessage('');
     }
     if (error) {
       setError('');
@@ -58,7 +63,7 @@ function SignUp() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const nextFieldErrors = {};
     const trimmedEmail = form.email.trim();
@@ -83,22 +88,27 @@ function SignUp() {
     }
 
     try {
-      axios.post(`${API_BASE_URL}/auth/signup`, {
+      const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
         fullName: form.fullName,
-        email: form.email,
+        email: trimmedEmail,
         password: form.password,
-        company: form.company,
-        agree: form.agree
+        company: form.company
       });
+      setFieldErrors({});
+      setError('');
+      setSuccessMessage(
+        response.data?.message || 'Account created. Check your email to verify your account.'
+      );
+      setSubmitted(true);
+      setForm(initialForm);
     } catch (err) {
-      setError('An error occurred while creating your account. Please try again.');
+      setError(
+        err.response?.data?.message ||
+          'An error occurred while creating your account. Please try again.'
+      );
       setSubmitted(false);
       return;
     }
-
-    setFieldErrors({});
-    setError('');
-    setSubmitted(true);
   };
 
   return (
@@ -109,12 +119,11 @@ function SignUp() {
             <AuthEyebrow>Create your account</AuthEyebrow>
             <AuthHeading>Start bookmarking important ChatGPT messages in one place.</AuthHeading>
             <AuthText>
-              This form is front-end only for now. It gives you a proper sign-up flow layout and can be
-              connected to the backend later when account APIs exist.
+              New accounts now require email verification before the first login. After sign-up, we send
+              a verification link to the address you provide.
             </AuthText>
             <AuthText>
-              Use it as the entry point for onboarding, waitlist capture, or account creation once the
-              backend is ready.
+              Once the email is confirmed, the same credentials can be used to access the product.
             </AuthText>
           </AuthIntro>
 
@@ -212,11 +221,12 @@ function SignUp() {
               </Button>
 
               {error ? <AuthNotice>{error}</AuthNotice> : null}
+              {successMessage ? <AuthSuccessNotice>{successMessage}</AuthSuccessNotice> : null}
 
               <AuthHelperText>
                 {submitted
-                  ? 'Form submitted locally. Connect this page to your backend to create real accounts.'
-                  : 'Accounts are not persisted yet. This is the front-end form scaffold.'}
+                  ? 'Your account is pending verification. Open the email we sent and follow the link.'
+                  : 'Your account will stay locked until the verification link is completed.'}
               </AuthHelperText>
 
               <AuthFooter>

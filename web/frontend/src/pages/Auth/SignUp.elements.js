@@ -150,6 +150,12 @@ export const AuthNotice = styled.div`
   line-height: 1.5;
 `;
 
+export const AuthSuccessNotice = styled(AuthNotice)`
+  border-color: rgba(22, 163, 74, 0.18);
+  background: rgba(220, 252, 231, 0.85);
+  color: #166534;
+`;
+
 export const AuthHelperText = styled.p`
   color: #64748b;
   font-size: 14px;

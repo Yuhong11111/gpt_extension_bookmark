@@ -1,12 +1,20 @@
 package com.chatgptbookmark.backend.dto;
 
-// This DTO will represent the request body sent by the client when logging in.
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class LoginRequest {
+    @NotBlank
+    @Email
     private String email;
+
+    @NotBlank
+    @Size(min = 8)
     private String password;
+
     private boolean rememberMe;
 
-    // Getters and setters
     public String getEmail() {
         return email;
     }

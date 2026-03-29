@@ -19,6 +19,7 @@ import {
   FieldCheckboxRow,
   FieldCheckboxLabel,
   AuthNotice,
+  AuthSuccessNotice,
   AuthHelperText,
   AuthFooter
 } from './SignUp.elements';
@@ -36,12 +37,16 @@ function LogIn() {
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
     if (submitted) {
       setSubmitted(false);
+    }
+    if (successMessage) {
+      setSuccessMessage('');
     }
     if (error) {
       setError('');
@@ -55,7 +60,7 @@ function LogIn() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const nextFieldErrors = {};
     const trimmedEmail = form.email.trim();
@@ -75,21 +80,22 @@ function LogIn() {
       return;
     }
     try {
-      // Replace this with your actual login API call
-      axios.post(`${API_BASE_URL}/auth/login`, {
-        email: form.email,
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+        email: trimmedEmail,
         password: form.password,
         rememberMe: form.rememberMe
       });
+      setFieldErrors({});
+      setError('');
+      setSuccessMessage(response.data?.message || 'Login successful.');
+      setSubmitted(true);
     } catch (err) {
-      setError('An error occurred during login. Please try again.');
+      setError(
+        err.response?.data?.message || 'An error occurred during login. Please try again.'
+      );
       setSubmitted(false);
       return;
     }
-
-    setFieldErrors({});
-    setError('');
-    setSubmitted(true);
   };
 
   return (
@@ -100,12 +106,10 @@ function LogIn() {
             <AuthEyebrow>Welcome back</AuthEyebrow>
             <AuthHeading>Log in to manage your bookmarks and account settings.</AuthHeading>
             <AuthText>
-              This page is the front-end login flow. It is ready for real authentication once your backend
-              exposes a login endpoint.
+              Email verification is enforced before login, so new accounts must confirm their inbox first.
             </AuthText>
             <AuthText>
-              For now, the UI handles input, basic validation, and a realistic auth layout that matches the
-              signup page.
+              Once verified, this form submits directly to the backend auth endpoint.
             </AuthText>
           </AuthIntro>
 
@@ -158,11 +162,12 @@ function LogIn() {
               </Button>
 
               {error ? <AuthNotice>{error}</AuthNotice> : null}
+              {successMessage ? <AuthSuccessNotice>{successMessage}</AuthSuccessNotice> : null}
 
               <AuthHelperText>
                 {submitted
-                  ? 'Login submitted locally. Connect this page to your backend to authenticate users.'
-                  : 'Authentication is not connected yet. This is the front-end login scaffold.'}
+                  ? 'Authentication request accepted by the backend.'
+                  : 'If login is rejected, confirm that the account email has already been verified.'}
               </AuthHelperText>
 
               <AuthFooter>

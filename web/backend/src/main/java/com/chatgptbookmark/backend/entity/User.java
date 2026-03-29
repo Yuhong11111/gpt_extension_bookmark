@@ -27,6 +27,9 @@ public class User {
     @Column
     private String company;
 
+    @Column(nullable = false)
+    private Boolean emailVerified = false;
+
     public Long getId() {
         return id;
     }
@@ -65,5 +68,13 @@ public class User {
 
     public void setCompany(String company) {
         this.company = company;
+    }
+
+    public Boolean getEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(Boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 }

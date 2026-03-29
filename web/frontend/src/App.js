@@ -8,6 +8,7 @@ import Products from './pages/Products/Products';
 import SignUp from './pages/Auth/SignUp';
 import ScrollToTop from './components/ScrollToTop';
 import LogIn from './pages/Auth/LogIn';
+import VerifyEmail from './pages/Auth/VerifyEmail';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path='/products' component={Products} />
             <Route path='/sign-up' component={SignUp} />
             <Route path='/log-in' component={LogIn} />
+            <Route path='/verify-email' component={VerifyEmail} />
           </Switch>
           <Footer />
       </Router>

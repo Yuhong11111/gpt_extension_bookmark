@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api';
-import useNavigate from '../../hooks/useNavigate';
 
 // dashboard page only accessible to authenticated users, shows the authenticated user info and a logout button, if the user is not authenticated, they will be redirected to the login page by the ProtectedRoute component
 function Dashboard({ authenticatedUser }) {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import api from '../api';
 
-function ProtectedRoute({ component: Component, ...rest }) {
+function ProtectedRoute({ children }) {
   const [authState, setAuthState] = useState({
     isLoading: true,
     isAuthenticated: false,
@@ -42,22 +42,15 @@ function ProtectedRoute({ component: Component, ...rest }) {
     };
   }, []);
 
-  return (
-    <Route
-      {...rest}
-      render={(routeProps) => {
-        if (authState.isLoading) {
-          return <div>Checking authentication...</div>;
-        }
+  if (authState.isLoading) {
+    return <div>Checking authentication...</div>;
+  }
 
-        if (!authState.isAuthenticated) {
-          return <Redirect to='/log-in' />;
-        }
+  if (!authState.isAuthenticated) {
+    return <Navigate to='/log-in' replace />;
+  }
 
-        return <Component {...routeProps} authenticatedUser={authState.user} />;
-      }}
-    />
-  );
+  return React.cloneElement(children, { authenticatedUser: authState.user });
 }
 
 export default ProtectedRoute;

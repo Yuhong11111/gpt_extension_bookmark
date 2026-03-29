@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Container } from '../../globalStyles';
-import useNavigate from '../../hooks/useNavigate';
 import {
   AuthSection,
   AuthGrid,

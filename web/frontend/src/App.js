@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom' 
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import GlobalStyles from './globalStyles'
 import { Navbar, Footer } from './components';
 import Home from './pages/HomePage/Home';
@@ -14,24 +14,28 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    
-      <Router>
-          <GlobalStyles />
-          <ScrollToTop />
-          <Navbar />
-          <Switch>
-            <Route path='/' exact component={Home} />
-            <Route path='/services' component={Services} />
-            <Route path='/products' component={Products} />
-            <Route path='/sign-up' component={SignUp} />
-            <Route path='/log-in' component={LogIn} />
-            <Route path='/verify-email' component={VerifyEmail} />
-            <ProtectedRoute path='/dashboard' component={Dashboard} />
-          </Switch>
-          <Footer />
-      </Router>
-        
-    
+    <Router>
+      <GlobalStyles />
+      <ScrollToTop />
+      <Navbar />
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/services' element={<Services />} />
+        <Route path='/products' element={<Products />} />
+        <Route path='/sign-up' element={<SignUp />} />
+        <Route path='/log-in' element={<LogIn />} />
+        <Route path='/verify-email' element={<VerifyEmail />} />
+        <Route
+          path='/dashboard'
+          element={(
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          )}
+        />
+      </Routes>
+      <Footer />
+    </Router>
   );
 }
 

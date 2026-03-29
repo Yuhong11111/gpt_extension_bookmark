@@ -2,7 +2,7 @@
 
 This folder contains the standalone web app for the extension:
 
-- `frontend/`: React + Create React App
+- `frontend/`: React + Create React App + React Router v6
 - `backend/`: Spring Boot + Maven
 
 ## Structure

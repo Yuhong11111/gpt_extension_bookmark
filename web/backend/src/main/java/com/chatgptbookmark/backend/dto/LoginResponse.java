@@ -1,5 +1,19 @@
 package com.chatgptbookmark.backend.dto;
 
-// This DTO will represent the response returned to the client after login.
 public class LoginResponse {
+    private final String message;
+    private final AuthenticatedUserResponse user;
+
+    public LoginResponse(String message, AuthenticatedUserResponse user) {
+        this.message = message;
+        this.user = user;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public AuthenticatedUserResponse getUser() {
+        return user;
+    }
 }

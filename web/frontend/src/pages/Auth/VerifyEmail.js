@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import api from '../../api';
+import { Link, useLocation } from 'react-router-dom';
 import { Container } from '../../globalStyles';
+import useNavigate from '../../hooks/useNavigate';
 import {
   AuthSection,
   AuthGrid,
@@ -16,11 +17,11 @@ import {
 } from './SignUp.elements';
 
 function VerifyEmail() {
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-  const history = useHistory();
+  const navigate = useNavigate();
   const { search } = useLocation();
   const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('Verifying your email...');
+  const requestedTokenRef = useRef(null);
 
   useEffect(() => {
     // extract the token from the query parameters, if it doesn't exist, show an error message and return
@@ -32,12 +33,17 @@ function VerifyEmail() {
       return;
     }
 
+    if (requestedTokenRef.current === token) {
+      return;
+    }
+    requestedTokenRef.current = token;
+
     let active = true;
     let redirectTimeout;
 
     const verifyEmail = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/auth/verify-email`, {
+        const response = await api.get('/auth/verify-email', {
           params: { token }
         });
         if (!active) {
@@ -49,7 +55,7 @@ function VerifyEmail() {
         );
         redirectTimeout = window.setTimeout(() => {
           if (active) {
-            history.push('/dashboard');
+            navigate('/dashboard');
           }
         }, 1500);
       } catch (err) {
@@ -71,7 +77,7 @@ function VerifyEmail() {
         window.clearTimeout(redirectTimeout);
       }
     };
-  }, [API_BASE_URL, history, search]);
+  }, [navigate, search]);
 
   return (
     <AuthSection>

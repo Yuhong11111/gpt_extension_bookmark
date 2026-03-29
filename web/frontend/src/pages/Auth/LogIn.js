@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Container } from '../../globalStyles';
-import axios from 'axios';
+import api from '../../api';
+import useNavigate from '../../hooks/useNavigate';
 import {
   AuthSection,
   AuthGrid,
@@ -33,7 +34,7 @@ const initialForm = {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function LogIn() {
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const navigate = useNavigate();
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -80,7 +81,7 @@ function LogIn() {
       return;
     }
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      const response = await api.post('/auth/login', {
         email: trimmedEmail,
         password: form.password,
         rememberMe: form.rememberMe
@@ -89,6 +90,7 @@ function LogIn() {
       setError('');
       setSuccessMessage(response.data?.message || 'Login successful.');
       setSubmitted(true);
+      navigate('/dashboard');
     } catch (err) {
       setError(
         err.response?.data?.message || 'An error occurred during login. Please try again.'
@@ -166,7 +168,7 @@ function LogIn() {
 
               <AuthHelperText>
                 {submitted
-                  ? 'Authentication request accepted by the backend.'
+                  ? 'Authentication cookie issued. Redirecting to your dashboard.'
                   : 'If login is rejected, confirm that the account email has already been verified.'}
               </AuthHelperText>
 

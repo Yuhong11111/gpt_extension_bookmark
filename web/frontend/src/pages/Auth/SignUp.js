@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api';
 import { Button, Container } from '../../globalStyles';
 import {
   AuthSection,
@@ -40,7 +40,6 @@ const initialForm = {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function SignUp() {
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -94,7 +93,7 @@ function SignUp() {
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
+      const response = await api.post('/auth/signup', {
         fullName: form.fullName,
         email: trimmedEmail,
         password: form.password,

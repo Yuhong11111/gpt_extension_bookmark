@@ -9,6 +9,7 @@ import SignUp from './pages/Auth/SignUp';
 import ScrollToTop from './components/ScrollToTop';
 import LogIn from './pages/Auth/LogIn';
 import VerifyEmail from './pages/Auth/VerifyEmail';
+import Dashboard from './pages/Dashboard/Dashboard';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path='/sign-up' component={SignUp} />
             <Route path='/log-in' component={LogIn} />
             <Route path='/verify-email' component={VerifyEmail} />
+            <Route path='/dashboard' component={Dashboard} />
           </Switch>
           <Footer />
       </Router>

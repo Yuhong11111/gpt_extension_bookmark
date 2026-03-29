@@ -40,11 +40,26 @@ public class AuthService {
     public AuthMessageResponse signup(String fullName, String email, String rawPassword, String company) {
         String normalizedEmail = normalizeEmail(email);
 
-        // check if email is already registered, throw exception if it is
-        if (userRepository.findByEmail(normalizedEmail).isPresent()) {
-            throw new RuntimeException("User already exists");
+        User existingUser = userRepository.findByEmail(normalizedEmail).orElse(null);
+        if (existingUser != null) {
+            if (Boolean.TRUE.equals(existingUser.getEmailVerified())) {
+                throw new RuntimeException("User already exists");
+            }
+
+            EmailVerificationToken existingToken = tokenRepository.findByUser(existingUser).orElse(null);
+            if (existingToken != null && !existingToken.isUsed() && existingToken.getExpiresAt().isAfter(LocalDateTime.now())) {
+                return new AuthMessageResponse("Account already exists but is still pending verification. Please confirm your email.");
+            }
+
+            EmailVerificationToken refreshedToken = createOrRefreshVerificationToken(existingUser, existingToken);
+            boolean emailSent = emailVerificationService.sendVerificationEmail(existingUser, refreshedToken.getToken());
+            if (emailSent) {
+                return new AuthMessageResponse("Your previous verification link expired. We sent a new verification email.");
+            }
+
+            return new AuthMessageResponse("Your previous verification link expired, but the new verification email could not be sent. Please try again later.");
         }
- 
+
         // create new user with emailVerified set to false, save to database, generate email verification token, and send verification email
         User user = new User();
         user.setFullName(fullName.trim());
@@ -55,18 +70,14 @@ public class AuthService {
         userRepository.save(user);
 
         // generate email verification token, save to database, and send verification email
-        EmailVerificationToken verificationToken = new EmailVerificationToken();
-        verificationToken.setUser(user);
-        verificationToken.setToken(UUID.randomUUID().toString());
-        verificationToken.setExpiresAt(LocalDateTime.now().plusHours(EMAIL_TOKEN_EXPIRY_HOURS));
-        tokenRepository.save(verificationToken);
+        EmailVerificationToken verificationToken = createOrRefreshVerificationToken(user, null);
 
         boolean emailSent = emailVerificationService.sendVerificationEmail(user, verificationToken.getToken());
         if (emailSent) {
             return new AuthMessageResponse("Account created. Check your email to verify your account before logging in.");
         }
 
-        return new AuthMessageResponse("Account created, but the verification email could not be sent. Check the server logs for the verification link.");
+        return new AuthMessageResponse("Account created, but the verification email could not be sent. Please try again later.");
     }
 
     @Transactional(readOnly = true)
@@ -113,5 +124,14 @@ public class AuthService {
     // normalize email by trimming whitespace and converting to lowercase, return null if input is null
     private String normalizeEmail(String email) {
         return email == null ? null : email.trim().toLowerCase();
+    }
+
+    private EmailVerificationToken createOrRefreshVerificationToken(User user, EmailVerificationToken token) {
+        EmailVerificationToken verificationToken = token != null ? token : new EmailVerificationToken();
+        verificationToken.setUser(user);
+        verificationToken.setToken(UUID.randomUUID().toString());
+        verificationToken.setExpiresAt(LocalDateTime.now().plusHours(EMAIL_TOKEN_EXPIRY_HOURS));
+        verificationToken.setUsed(false);
+        return tokenRepository.save(verificationToken);
     }
 }

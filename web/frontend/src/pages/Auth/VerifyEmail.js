@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { Container } from '../../globalStyles';
 import {
   AuthSection,
@@ -17,6 +17,7 @@ import {
 
 function VerifyEmail() {
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const history = useHistory();
   const { search } = useLocation();
   const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('Verifying your email...');
@@ -32,6 +33,7 @@ function VerifyEmail() {
     }
 
     let active = true;
+    let redirectTimeout;
 
     const verifyEmail = async () => {
       try {
@@ -42,7 +44,14 @@ function VerifyEmail() {
           return;
         }
         setStatus('success');
-        setMessage(response.data?.message || 'Email verified. You can now log in.');
+        setMessage(
+          response.data?.message || 'Email verified. Redirecting you to the dashboard...'
+        );
+        redirectTimeout = window.setTimeout(() => {
+          if (active) {
+            history.push('/dashboard');
+          }
+        }, 1500);
       } catch (err) {
         if (!active) {
           return;
@@ -58,8 +67,11 @@ function VerifyEmail() {
 
     return () => {
       active = false;
+      if (redirectTimeout) {
+        window.clearTimeout(redirectTimeout);
+      }
     };
-  }, [API_BASE_URL, search]);
+  }, [API_BASE_URL, history, search]);
 
   return (
     <AuthSection>
@@ -84,7 +96,9 @@ function VerifyEmail() {
             )}
 
             <AuthFooter>
-              <Link to='/log-in'>Go to login</Link>
+              <Link to={status === 'success' ? '/dashboard' : '/log-in'}>
+                {status === 'success' ? 'Go to dashboard' : 'Go to login'}
+              </Link>
             </AuthFooter>
           </AuthCard>
         </AuthGrid>

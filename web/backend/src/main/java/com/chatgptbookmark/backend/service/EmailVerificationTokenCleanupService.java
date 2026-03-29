@@ -25,7 +25,7 @@ public class EmailVerificationTokenCleanupService {
     public void cleanupTokens() {
         long deletedCount = tokenRepository.deleteByUsedTrueOrExpiresAtBefore(LocalDateTime.now());
         if (deletedCount > 0) {
-            logger.info("Deleted {} email verification tokens", deletedCount);
+            // logger.info("Deleted {} email verification tokens", deletedCount);
         }
     }
 }

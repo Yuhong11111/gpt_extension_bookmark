@@ -156,6 +156,32 @@ export const AuthSuccessNotice = styled(AuthNotice)`
   color: #166534;
 `;
 
+export const VerificationCard = styled.div`
+  padding: 16px 18px;
+  border: 1px solid rgba(75, 89, 247, 0.14);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(240, 244, 255, 0.96));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+`;
+
+export const VerificationCardTitle = styled.p`
+  margin-bottom: 6px;
+  color: #101522;
+  font-size: 15px;
+  font-weight: 700;
+`;
+
+export const VerificationCardText = styled.p`
+  color: #4b5567;
+  font-size: 14px;
+  line-height: 1.6;
+`;
+
+export const VerificationEmail = styled.span`
+  color: #2436d6;
+  font-weight: 700;
+`;
+
 export const AuthHelperText = styled.p`
   color: #64748b;
   font-size: 14px;

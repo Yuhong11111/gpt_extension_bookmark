@@ -39,12 +39,12 @@ public class EmailVerificationService {
         String verificationUrl = buildVerificationUrl(token);
 
         if (mailSender == null) {
-            logger.warn("Verification email not sent because no JavaMailSender bean is configured. Verification URL for {}: {}", user.getEmail(), verificationUrl);
+            // logger.warn("Verification email not sent because no JavaMailSender bean is configured. Verification URL for {}: {}", user.getEmail(), verificationUrl);
             return false;
         }
 
         if (!StringUtils.hasText(fromAddress)) {
-            logger.warn("Verification email not sent because app.mail.from is blank. Verification URL for {}: {}", user.getEmail(), verificationUrl);
+            // logger.warn("Verification email not sent because app.mail.from is blank. Verification URL for {}: {}", user.getEmail(), verificationUrl);
             return false;
         }
 
@@ -56,10 +56,10 @@ public class EmailVerificationService {
             message.setText(buildEmailBody(user, verificationUrl));
             // send the email, log success, and return true if successful
             mailSender.send(message);
-            logger.info("Verification email sent to {}", user.getEmail());
+            // logger.info("Verification email sent to {}", user.getEmail());
             return true;
         } catch (Exception exception) {
-            logger.warn("Verification email could not be sent to {}. Verification URL: {}", user.getEmail(), verificationUrl, exception);
+            // logger.warn("Verification email could not be sent to {}. Verification URL: {}", user.getEmail(), verificationUrl, exception);
             return false;
         }
     }

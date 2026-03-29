@@ -20,6 +20,10 @@ import {
   FieldCheckboxLabel,
   AuthNotice,
   AuthSuccessNotice,
+  VerificationCard,
+  VerificationCardTitle,
+  VerificationCardText,
+  VerificationEmail,
   AuthHelperText,
   AuthFooter
 } from './SignUp.elements';
@@ -42,6 +46,7 @@ function SignUp() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
+  const [verificationEmail, setVerificationEmail] = useState('');
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -50,6 +55,7 @@ function SignUp() {
     }
     if (successMessage) {
       setSuccessMessage('');
+      setVerificationEmail('');
     }
     if (error) {
       setError('');
@@ -96,16 +102,26 @@ function SignUp() {
       });
       setFieldErrors({});
       setError('');
+      setVerificationEmail(trimmedEmail);
       setSuccessMessage(
         response.data?.message || 'Account created. Check your email to verify your account.'
       );
       setSubmitted(true);
       setForm(initialForm);
     } catch (err) {
-      setError(
+      const message =
         err.response?.data?.message ||
-          'An error occurred while creating your account. Please try again.'
-      );
+        'An error occurred while creating your account. Please try again.';
+
+      if (message === 'User already exists') {
+        setFieldErrors({ email: message });
+        setError('Please fix the highlighted fields.');
+        setSubmitted(false);
+        return;
+      }
+
+      setFieldErrors({});
+      setError(message);
       setSubmitted(false);
       return;
     }
@@ -222,6 +238,15 @@ function SignUp() {
 
               {error ? <AuthNotice>{error}</AuthNotice> : null}
               {successMessage ? <AuthSuccessNotice>{successMessage}</AuthSuccessNotice> : null}
+              {verificationEmail ? (
+                <VerificationCard>
+                  <VerificationCardTitle>Please confirm your email</VerificationCardTitle>
+                  <VerificationCardText>
+                    We sent a verification email to <VerificationEmail>{verificationEmail}</VerificationEmail>.
+                    Open that inbox and click the confirmation link to activate your account.
+                  </VerificationCardText>
+                </VerificationCard>
+              ) : null}
 
               <AuthHelperText>
                 {submitted

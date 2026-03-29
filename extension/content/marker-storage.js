@@ -7,7 +7,10 @@ function loadConversation(convId) {
         return;
       }
       const key = convStorageKey(convId);
-      chrome.storage.local.get([key], (res) => resolve(res?.[key] || []));
+      chrome.storage.local.get([key], (res) => {
+        const v = res?.[key];
+        resolve(Array.isArray(v) ? v : []);
+      });
     } catch {
       resolve([]);
     }

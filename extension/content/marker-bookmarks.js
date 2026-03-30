@@ -89,7 +89,7 @@ async function toggleBookmark(msgId, preview) {
   const idx = list.findIndex((x) => x.msgId === msgId);
   // if bookmarked, remove it; else add it to the front
   if (idx >= 0) list.splice(idx, 1);
-  else list.unshift({ msgId, preview, ts: Date.now() });
+  else list.unshift({ msgId, preview, ts: Date.now(), tags: [] });
 
   await saveConversation(convId, list);
 

@@ -1,6 +1,6 @@
 # Frontend
 
-This frontend is a React app built with Create React App (`react-scripts@3.4.1`), `styled-components`, and `react-router-dom`.
+This frontend is a React app built with Create React App (`react-scripts@3.4.1`), `styled-components`, and `react-router-dom@6`.
 
 ## Requirements
 
@@ -47,4 +47,4 @@ so no extra shell setup is required before running `npm start` or `npm run build
 - React 17
 - Create React App
 - Styled Components
-- React Router
+- React Router v6

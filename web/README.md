@@ -2,7 +2,7 @@
 
 This folder contains the standalone web app for the extension:
 
-- `frontend/`: React + Create React App
+- `frontend/`: React + Create React App + React Router v6
 - `backend/`: Spring Boot + Maven
 
 ## Structure
@@ -57,6 +57,48 @@ npm run build
 ```
 
 ## Run backend
+
+Before starting the backend, set up PostgreSQL for local development:
+
+1. Install PostgreSQL.
+2. Create the app role:
+
+```sql
+CREATE ROLE chatgpt_bookmark WITH LOGIN PASSWORD 'chatgpt_bookmark';
+```
+
+3. Create the app database:
+
+```sql
+CREATE DATABASE chatgpt_bookmarks OWNER chatgpt_bookmark;
+```
+
+4. Connect to `chatgpt_bookmarks`, then grant schema access:
+
+```sql
+GRANT ALL ON SCHEMA public TO chatgpt_bookmark;
+```
+
+5. Set environment variables:
+
+```bash
+export DB_URL=jdbc:postgresql://localhost:5432/chatgpt_bookmarks
+export DB_USERNAME=chatgpt_bookmark
+export DB_PASSWORD=chatgpt_bookmark
+```
+
+6. Run the backend with either workflow below.
+
+If you are using VS Code, use the helper script below. Spring Boot DevTools can restart on file changes, but VS Code does not always recompile Java classes automatically while the app is running, so source changes may not be applied after save.
+
+```bash
+cd web/backend
+sh ./dev.sh
+```
+
+This script watches `src/main/java` and `src/main/resources`, runs `mvn compile` when files change, and lets Spring Boot DevTools restart with freshly compiled classes.
+
+If you are using IntelliJ, `./mvnw spring-boot:run` is correct only if auto-build while the app is running is enabled. With that setting on, you can run the backend directly with Maven:
 
 ```bash
 cd web/backend

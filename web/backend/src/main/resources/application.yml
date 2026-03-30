@@ -1,6 +1,0 @@
-spring:
-  application:
-    name: chatgpt-bookmark-backend
-
-server:
-  port: 8080

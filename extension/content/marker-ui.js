@@ -1,4 +1,5 @@
 let searchQuery = "";
+const HOME_URL = "http://localhost:3000/";
 
 const PANEL_UI_VERSION = "tag-v1";
 
@@ -249,7 +250,7 @@ function ensurePanel() {
         <button class="cgpt-marker-header-btn" id="cgptClose" type="button">Close</button>
       </div>
     </header>
-      <div class="cgpt-marker-search">
+    <div class="cgpt-marker-search">
     <input
       id="cgptMarkerSearch"
       class="cgpt-marker-search-input"
@@ -257,8 +258,13 @@ function ensurePanel() {
       placeholder="Search bookmarks..."
       autocomplete="off"
     />
-  </div>
+    </div>
     <div class="cgpt-marker-list"></div>
+    <div class="cgpt-marker-panel-footer">
+      <button class="cgpt-marker-dashboard-btn" id="cgptDashboard" type="button">
+        Go to home page
+      </button>
+    </div>
   `;
   document.body.appendChild(panel);
 
@@ -271,6 +277,11 @@ function ensurePanel() {
     await renderPanel();
     await updateButtonStates();
   });
+
+  panel.querySelector("#cgptDashboard").addEventListener("click", () => {
+    window.open(HOME_URL, "_blank", "noopener,noreferrer");
+  });
+
   const searchInput = panel.querySelector("#cgptMarkerSearch");
   searchInput.value = searchQuery;
 
